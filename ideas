@@ -1,0 +1,13 @@
+- use css @media in order to distinguish between mobile and desktop
+- next task is to build the create resource workflow
+  - including smart contracts
+  - but still no style ;) 
+- alright, which page makes sense for a start? 
+  - the one someone spends most time on. 
+  - for a start - people want to be able to see what's there
+    - it makes sense to quickly explain 
+      - you can share resources here
+      - you can book resources there
+      - you can manage your resources here
+      - you can manage your bookings here
+
