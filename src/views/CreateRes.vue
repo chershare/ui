@@ -1,6 +1,23 @@
+<script setup lang=ts>
+import MultiImageUpload from '../components/MultiImageUpload.vue'
+
+</script>
+
 <template>
   <div class="createRes">
     <h1>Create Res</h1>
+    <div>
+      <h3>Images</h3>
+      <p>Upload some photos or blueprints of the resource you are sharing.</p>
+      <div class=imagePreview>
+        <MultiImageUpload imgType='resource'/>
+      </div>
+    </div>
+    <h3>Title and Description</h3>
+    <p>Choose a title and describe the resource you are sharing.</p>
+    <input type=text placeholder=Title />
+    <textarea placeholder=Description />
+    
   </div>
 </template>
 

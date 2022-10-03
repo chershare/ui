@@ -1,7 +1,15 @@
 - use css @media in order to distinguish between mobile and desktop
+
 - next task is to build the create resource workflow
   - including smart contracts
   - but still no style ;) 
+  - image upload 
+    - small express server
+      - hashes the image to get the filename
+      - crops the image to 1024x1024 (max) .jpg, 80%
+      - crops that one to 128x128 and responds with it (preview) 
+    - after selecting an image, immediately start uploading 
+
 - alright, which page makes sense for a start? 
   - the one someone spends most time on. 
   - for a start - people want to be able to see what's there

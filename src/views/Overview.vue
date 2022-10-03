@@ -5,7 +5,8 @@
   <div class="overview">
     <h1>Overview</h1>
     <h2>Share resources</h2>
-    <p>If you have something valuable, that you don't use youself all of the time, you can share it with others and earn money for it. Some examples for resources you could share are...</p>
+    <p>If you have something valuable, that you don't use youself all of the time, you can share it with others and earn money for it. </p>
+    <p>Some examples for resources you could share are: </p>
     <ul>
       <li>rooms or houses</li>
       <li>machines or tools</li>

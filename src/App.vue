@@ -13,9 +13,7 @@ import Header from "./components/Header.vue";
       height="125"
     />
 
-    <div class="wrapper">
-      <Header style=""/>
-
+    <div class="links">
       <nav>
         <RouterLink to="/">Overview</RouterLink>
         <RouterLink to="/res/create">Create Resource</RouterLink>
@@ -28,6 +26,19 @@ import Header from "./components/Header.vue";
   <RouterView />
 </template>
 
-<style lang=less scoped>
+<style lang=less>
+
+/* body {
+  background-color: #211; 
+  color: #fbf; 
+}
+
+a {
+  color: #88f; 
+}
+
+input {
+  background-color: #000; 
+} */
 
 </style>
