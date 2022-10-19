@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
+
+import { onMounted } from 'vue'
+
 import Header from "./components/Header.vue";
 
-import { Wallet } from './near-wallet'; 
+import { useNear } from './stores/near'
 
-const wallet = new Wallet({ createAccessKeyFor: process.env.CONTRACT_NAME })
+const near = useNear()
 
-function onMounted(callback: () => void): void {
-  console.log("trying to start wallet") 
-  wallet.startUp()
-}
+onMounted(() => {
+  near.startUp()
+})
 
 </script>
 
@@ -22,6 +24,13 @@ function onMounted(callback: () => void): void {
       width="125"
       height="125"
     />
+
+    <button v-if="near.signedIn" @click=near.signOut>
+      sign out
+    </button>
+    <button v-else @click=near.signIn>
+      sign in
+    </button>
 
     <h3>near info</h3>
     <p> ... </p>
