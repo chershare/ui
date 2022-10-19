@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 import Header from "./components/Header.vue";
+
+import { Wallet } from './near-wallet'; 
+
+const wallet = new Wallet({ createAccessKeyFor: process.env.CONTRACT_NAME })
+
+function onMounted(callback: () => void): void {
+  console.log("trying to start wallet") 
+  wallet.startUp()
+}
+
 </script>
 
 <template>
@@ -12,6 +22,10 @@ import Header from "./components/Header.vue";
       width="125"
       height="125"
     />
+
+    <h3>near info</h3>
+    <p> ... </p>
+      
 
     <div class="links">
       <nav>
