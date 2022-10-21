@@ -2,6 +2,6 @@ import  type { NetworkId } from '@near-wallet-selector/core';
 
 // config 
 export default {
-  contract: "dev-1666174519397-86667975645565", 
+  contract: "dev-1666200445140-19169904957827", 
   network: "testnet" as NetworkId
 }
