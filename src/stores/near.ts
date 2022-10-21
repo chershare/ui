@@ -31,7 +31,7 @@ export const useNear = defineStore('near', {
       contractId: config.contract, 
       network: config.network, 
       walletSelector: null as WalletSelector | null, 
-      testMessage: "unknown", 
+      testMessage: undefined as string | undefined, 
       signedIn: false, 
       wallet: null as Wallet | null, 
       accountId: undefined as string | undefined, 
@@ -75,24 +75,24 @@ export const useNear = defineStore('near', {
         console.log("can't signed out because wallet is null") 
       }
     }, 
-    getTest() {
+    getTestMessage() {
       this.viewMethod(
         config.contract, 
-        "test"
+        "get_test_message"
       ).then((result: any) => {
         this.testMessage = result
       }) 
     },
     createResource() {
     },
-    async viewMethod(method: string, args = {}) {
+    async viewMethod(contractId: string, method: string, args = {}) {
       if(this.walletSelector) {
         const { network } = this.walletSelector.options
         const provider = new providers.JsonRpcProvider({ url: network.nodeUrl })
 
         let res = await provider.query({
           request_type: 'call_function',
-          account_id: this.contractId,
+          account_id: contractId,
           method_name: method,
           args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
           finality: 'optimistic',
@@ -100,12 +100,12 @@ export const useNear = defineStore('near', {
         return JSON.parse(Buffer.from((res as any).result).toString())
       }
     }, 
-    async callMethod(method: string, args = {}, gas = THIRTY_TGAS, deposit = NO_DEPOSIT) {
+    async callMethod(contractId: string, method: string, args = {}, gas = THIRTY_TGAS, deposit = NO_DEPOSIT) {
       if(this.wallet) {
         // Sign a transaction with the "FunctionCall" action
         return await this.wallet.signAndSendTransaction({
           signerId: this.accountId ?? undefined,
-          receiverId: this.contractId,
+          receiverId: contractId,
           actions: [
             {
               type: 'FunctionCall',

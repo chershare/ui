@@ -25,15 +25,22 @@ onMounted(() => {
       height="125"
     />
 
+
+    <h3>near info</h3>
+    <ul>
+    <li> Account Id: {{ near.accountId }} </li>
+    <li> Test message: {{ near.testMessage }} </li>
+    </ul>
     <button v-if="near.signedIn" @click=near.signOut>
       sign out
     </button>
     <button v-else @click=near.signIn>
       sign in
     </button>
+    <button @click=near.getTestMessage>
+      query test message
+    </button>
 
-    <h3>near info</h3>
-    <p> ... </p>
       
 
     <div class="links">
