@@ -16,5 +16,10 @@ export const useNewResourceStore = defineStore("new-resource", () => {
     title,
     description, 
     imageUrls, 
+    pricing: {
+      simpleRent: {
+        microNearPerSecond: 1000
+      }
+    }
   };
 });

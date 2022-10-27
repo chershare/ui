@@ -5,9 +5,9 @@ import { onMounted } from 'vue'
 
 import Header from "./components/Header.vue";
 
-import { useNear } from './stores/near'
+import { useNearStore } from './stores/near'
 
-const near = useNear()
+const near = useNearStore()
 
 onMounted(() => {
   near.startUp()

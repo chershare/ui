@@ -25,7 +25,7 @@ import config from '../config'
 const THIRTY_TGAS = '30000000000000'
 const NO_DEPOSIT = '0'
 
-export const useNear = defineStore('near', {
+export const useNearStore = defineStore('near', {
   state() {
     return {
       contractId: config.contract, 

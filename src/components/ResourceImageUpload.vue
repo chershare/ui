@@ -3,14 +3,14 @@ import axios from 'axios'
 import { ref } from 'vue' 
 
 import { useSettingsStore } from '@/stores/settings'
-import { useNewResourceStore } from '@/stores/new-resource'
+import { useNewResourceStore } from '@/stores/new-resources'
 
 // import UploadedImage from './UpoadedImage.vue'
 
-const settingsStore = useSettingsStore()
-const newResourceStore = useNewResourceStore()
+const settings = useSettingsStore()
+const newResource = useNewResourceStore()
 
-const imageUrls = newResourceStore.imageUrls
+const imageUrls = newResource.imageUrls
 
 let errors = ref([] as string[])
 let editImage = ref("")
@@ -26,12 +26,12 @@ async function fileChange(event: Event) {
       let formData = new FormData()
       formData.set('image', files[i])
       try {
-        const url = settingsStore.mediaServerUrl + '/' + 'resource-images'
+        const url = settings.mediaServerUrl + '/' + 'resource-images'
         console.log(url) 
         const response = await axios.post(url, formData) as any
         console.log("response: ", response.data) 
         if(response.data.ok) {
-          newResourceStore.imageUrls.push(url + '/' + response.data.relativeUrl) 
+          newResource.imageUrls.push(url + '/' + response.data.relativeUrl) 
         } else {
           errors.value.push(response.data.error)
         }
