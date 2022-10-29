@@ -18,7 +18,7 @@ function createResourceOnChain() {
     "create_resource", // pricing model simple rent
     {
       id: uuidv4(), 
-      name: newResource.name ?? '', 
+      title: newResource.title ?? '', 
       description: newResource.description ?? '', 
       price_per_ms: newResource.pricing.simpleRent.microNearPerSecond 
         / 1000 // per millisecond
@@ -52,9 +52,9 @@ function createResourceOnChain() {
       {{newResource}}
       <button @click=createResourceOnChain>Create Resource On Chain</button>
     </div>
-    
   </div>
 </template>
 
 <style>
 </style>
+
