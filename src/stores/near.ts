@@ -22,7 +22,7 @@ import { defineStore } from 'pinia'
 
 import config from '../config'
 
-const THIRTY_TGAS = '30000000000000'
+const TGAS_ZEROS = '000000000000'
 const NO_DEPOSIT = '0'
 
 export const useNearStore = defineStore('near', {
@@ -78,7 +78,7 @@ export const useNearStore = defineStore('near', {
     getTestMessage() {
       this.viewMethod(
         config.contract, 
-        "get_test_message"
+        "get_test"
       ).then((result: any) => {
         this.testMessage = result
       }) 
@@ -100,7 +100,7 @@ export const useNearStore = defineStore('near', {
         return JSON.parse(Buffer.from((res as any).result).toString())
       }
     }, 
-    async callMethod(contractId: string, method: string, args = {}, gas = THIRTY_TGAS, deposit = NO_DEPOSIT) {
+    async callMethod(contractId: string, method: string, args = {}, tgas = 30, deposit = NO_DEPOSIT) {
       if(this.wallet) {
         // Sign a transaction with the "FunctionCall" action
         return await this.wallet.signAndSendTransaction({
@@ -112,7 +112,7 @@ export const useNearStore = defineStore('near', {
               params: {
                 methodName: method,
                 args,
-                gas,
+                gas: tgas + TGAS_ZEROS,
                 deposit,
               },
             },
