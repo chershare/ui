@@ -15,27 +15,64 @@ export const timeDurations = {
   Years: 1000 * 60 * 60 * 24 * 365.25, 
 } as {[key: string]: number}
 
-const initalState = {
+const DEBUG = true
+
+const initalState = DEBUG ? {
+  name: "test", 
+  title: "test",
+  description: "just a test", 
+  imageUrls: ["testurl"] as string[], 
+  tags: ["test"],
+  contact: "felix", 
+  pricing: {
+    type: 'LinearRefund' as PricingType, 
+    SimpleRent: {
+      microNearPerSecond: 1000
+    }, 
+    LinearRefund: {
+      unit: 'Days' as TimeUnit, 
+      nearPerUnit: 8, 
+      fixedPriceInNear: 9, 
+      refundBufferInUnits: 7
+    }
+  }, 
+  minDurationUnit: 'Days' as TimeUnit, 
+  minDuration: 1
+} : {
   name: "", 
   title: "",
   description: "", 
   imageUrls: [] as string[], 
   contact: "", 
+  tags: [] as string[], 
   pricing: {
     type: 'LinearRefund' as PricingType, 
-    simpleRent: {
+    SimpleRent: {
       microNearPerSecond: 1000
     }, 
-    linearRefund: {
+    LinearRefund: {
       unit: 'Days' as TimeUnit, 
       nearPerUnit: 1, 
       fixedPriceInNear: 0, 
       refundBufferInUnits: 7
     }
+  }, 
+  minDurationUnit: 'Days' as TimeUnit, 
+  minDuration: 1
+}
+
+
+export type State = typeof initalState
+
+declare global {
+  interface BigInt {
+    toJSON(): string;
   }
 }
 
-export type State = typeof initalState
+BigInt.prototype.toJSON = function () {
+  return this.toString()
+}
 
 export const useNewResourceStore = defineStore("new-resource", {
   state: () => initalState, 
@@ -44,18 +81,18 @@ export const useNewResourceStore = defineStore("new-resource", {
       let o = {}
       switch(state.pricing.type) {
         case 'LinearRefund': 
-          let p = state.pricing.linearRefund
+          let p = state.pricing.LinearRefund
           o = {
-            price_fixed_base: p.fixedPriceInNear * 10 ** 24, 
-            price_per_ms: p.nearPerUnit * 10 ** 24 / timeDurations[p.unit], 
-            refund_buffer: p.refundBufferInUnits * timeDurations[p.unit] 
+            price_fixed_base: BigInt(p.fixedPriceInNear) * 10n ** 24n,
+            price_per_ms: BigInt(p.nearPerUnit) * 10n ** 24n / BigInt(timeDurations[p.unit]), 
+            refund_buffer: p.refundBufferInUnits * timeDurations[p.unit]
           }
           break; 
         default: 
           o = {
-            price_per_ms: state.pricing.simpleRent.microNearPerSecond 
+            price_per_ms: BigInt(state.pricing.SimpleRent.microNearPerSecond 
               / 1000 // per millisecond
-              * 10 ** (24 - 6), // from micro to yocta NEAR
+              * 10 ** (24 - 6)), // from micro to yocta NEAR
           }
       }
       return {

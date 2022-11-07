@@ -41,14 +41,13 @@ onMounted(() => {
       query test message
     </button>
 
-      
-
     <div class="links">
       <nav>
         <RouterLink to="/">Overview</RouterLink>
         <RouterLink to="/res/create">Create Resource</RouterLink>
-        <RouterLink to="/res/manage/asd">Manage Resource</RouterLink>
-        <RouterLink to="/bookings">Bookings</RouterLink>
+        <RouterLink v-if="near.accountId" :to="`/res?owner=${near.accountId}`">My Resources</RouterLink>
+        <RouterLink to="/res">Browse Resource</RouterLink>
+        <RouterLink :to="`/bookings?booker=${near.accountId}`">My Bookings</RouterLink>
       </nav>
     </div>
   </header>
