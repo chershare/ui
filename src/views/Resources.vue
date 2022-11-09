@@ -6,6 +6,8 @@ import { onMounted } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useResourceResultsStore } from '@/stores/resource-results'
 
+import ResourceDetails from '@/components/ResourceDetails.vue'
+
 const settings = useSettingsStore()
 const resourceResults = useResourceResultsStore()
 
@@ -34,6 +36,7 @@ onMounted(() => {
         <h3> {{ resource.title }} </h3>
         <p> {{ resource.description }} </p>
       </div>
+      <ResourceDetails/>
     </div>
   </div>
 </template>
