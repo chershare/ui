@@ -1,7 +1,7 @@
 <script setup lang=ts>
 import ResourceImageUpload from '../components/ResourceImageUpload.vue'
 
-import { useNewResourceStore, timeDurations } from '@/stores/new-resources'
+import { useNewResourceStore, timeDurations } from '@/stores/new-resource'
 import { useNearStore } from '@/stores/near'
 
 import config from '@/config'
@@ -14,23 +14,31 @@ const near = useNearStore()
 
 const errors = ref([] as string[])
 
-function createResourceOnChain() {
+async function createResourceOnChain() {
   errors.value = []
   if(newResource.name == "") {
     errors.value.push("You need to provide a name") 
+  }
+  let nameExists = await near.viewMethod(
+    config.contract, 
+    "name_exists", 
+    { name: newResource.name }
+  ) 
+  if(nameExists) {
+    errors.value.push("This name is already taken") 
   }
   if(errors.value.length == 0) {
     const args = {
       name: newResource.name, 
       resource_init_params: {
-        title: newResource.title ?? '', 
-        description: newResource.description ?? '', 
-        contact: newResource.contact,
-        pricing: newResource.contractFormatPricing, 
-        coordinates: [0,0], // TODO use geocoding
-        min_duration_ms: newResource.minDuration * timeDurations[newResource.minDurationUnit], 
-        image_urls: newResource.imageUrls, 
+        title: newResource.title, 
+        description: newResource.description, 
+        image_urls: [...newResource.imageUrls], 
+        contact: newResource.contactInfo,
         tags: newResource.tags, 
+        pricing: newResource.contractFormatPricing, 
+        coordinates: newResource.coordinates, // TODO use geocoding
+        min_duration_ms: newResource.minDuration * timeDurations[newResource.minDurationUnit], 
       }
     } 
     console.log("creating resource", args) 
@@ -42,6 +50,22 @@ function createResourceOnChain() {
       "3" + "0".repeat(24)
     ).then(() => console.log("success"))
     .catch(e => console.error("something failed", e) )
+  }
+}
+
+let tagInput = ref(null)
+function addTag(e: Event) {
+  let el = e.target as HTMLInputElement
+  let tag = el.value
+  if(tag !== "" && !newResource.tags.some(a => a == tag)) {
+    newResource.tags.push(el.value) 
+    el.value = ""
+  }
+}
+function popTag(e: Event) {
+  let el = e.target as HTMLInputElement
+  if(el.value == "") {
+    newResource.tags.pop()
   }
 }
 
@@ -58,42 +82,56 @@ function createResourceOnChain() {
       </div>
       <h3>Title and Description</h3>
       <p>Choose a title and describe the resource you are sharing.</p>
-      <input v-model=newResource.title type=text placeholder=title />
-      <textarea v-model=newResource.description placeholder=Description />
-      <h3>Contact information</h3>
-      <p>How shall people contact you when renting this resource?</p>
-      <textarea v-model=newResource.contact placeholder="Contact data"/>
+      <p>
+        <input v-model=newResource.title type=text placeholder=title />
+      </p>
+      <p>
+        <textarea v-model=newResource.description placeholder=Description />
+      </p>
+      <h3>Tags</h3>
+      <p>Choose tags that describe the type of this resource</p>
+      <div class="tagInput">
+        <div class=tag v-for="tag, key in newResource.tags" :key=key>
+          {{ tag }} 
+          <div class="delete" @click="newResource.tags.splice(key, 1)">x</div>
+        </div>
+        <input 
+          ref="tagInput" 
+          @change="addTag" 
+          @keydown.backspace="popTag" 
+          type=text />
+      </div>
+      <h3>Pricing</h3>
+      Unit: <select v-model=newResource.pricing.unit>
+        <option v-for="_ms, unit in timeDurations" :value='unit'>{{unit}}</option>
+      </select>
+      <p>
+        Price in NEAR per {{ newResource.pricing.unit.toLowerCase() }}: 
+        <input v-model.number=newResource.pricing.nearPerUnit type=text placeholder="NEAR per unit"/> 
+      </p>
+      <p>
+        Fixed price per booking in NEAR: 
+        <input v-model.number=newResource.pricing.nearPerBooking type=text placeholder="NEAR per booking"/> 
+      </p>
+      <p>
+        100% <b>refund</b>
+        <input v-model.number=newResource.pricing.fullRefundPeriod type=text placeholder=""/> 
+        {{newResource.pricing.unit.toLowerCase()}} before booking begin. <br/>
+        Linear decline from there to 0% at booking begin. 
+      </p>
       <h3>Minimum booking duration</h3>
       <p>What's the minimum period that the resource can be rented for?</p>
-      <input v-model.number=newResource.minDuration type=text placeholder="micro NEAR per second"/> 
-      <select v-model=newResource.minDurationUnit>
-        <option v-for="_value, u in timeDurations" :value='u'>{{u}}</option>
-      </select>
-      <h3>Pricing</h3>
-      <select v-model=newResource.pricing.type>
-        <option value="SimpleRent">SimpleRent</option>
-        <option value="LinearRefund">LinearRefund</option>
-      </select>
-      <div v-if="newResource.pricing.type == 'SimpleRent'">
-        <input v-model.number=newResource.pricing.SimpleRent.microNearPerSecond type=text placeholder="micro NEAR per second"/> micro NEAR per second 
-      </div>
-      <div v-if="newResource.pricing.type == 'LinearRefund'">
-        <select v-model=newResource.pricing.LinearRefund.unit>
-          <option v-for="value, u in timeDurations" :value='u'>{{u}}</option>
-        </select>
-        {{ timeDurations }}
-        <p>
-        price per {{newResource.pricing.LinearRefund.unit}} 
-        <input v-model.number=newResource.pricing.LinearRefund.nearPerUnit type=text placeholder="micro NEAR per second"/> 
-        </p>
-        fixed price per booking in NEAR
-        <input v-model.number=newResource.pricing.LinearRefund.fixedPriceInNear type=text placeholder="micro NEAR per second"/> 
-{{newResource.pricing.LinearRefund.unit}} of free cancelation
-        <input v-model.number=newResource.pricing.LinearRefund.refundBufferInUnits type=text placeholder="micro NEAR per second"/> 
-      </div>
       <p>
+        <input v-model.number=newResource.minDuration type=text placeholder="0"/> 
+        <select v-model=newResource.minDurationUnit>
+          <option v-for="_ms, unit in timeDurations" :value='unit'>{{unit}}</option>
+        </select>
       </p>
-      {{newResource}}
+      <h3>Contact information</h3>
+      <p>How shall people contact you when renting this resource?</p>
+      <p>
+        <textarea v-model=newResource.contactInfo placeholder="Contact data"/>
+      </p>
       <h3>Name</h3>
       <p>Choose a name for your resource.</p>
       <input v-model=newResource.name type=text placeholder=title />
@@ -101,10 +139,38 @@ function createResourceOnChain() {
         <li v-for="error in errors"> {{ error }} </li>
       </ul>
       <button @click=createResourceOnChain>Create Resource On Chain</button>
+      <p>debug: <pre>{{JSON.stringify(newResource.$state, null, '  ')}}</pre></p>
     </div>
   </div>
 </template>
 
-<style>
+<style lang=less scoped>
+@delSize: 2rem; 
+@tagHeight: 2rem; 
+
+.tagInput {
+  .tag{
+    display: inline-block; 
+    position: relative; 
+    height: @tagHeight; 
+    line-height: @tagHeight; 
+    margin: 0.2rem; 
+    padding: 0.25rem; 
+    padding-right: @delSize + 0.5rem; 
+    padding-left: 1rem; 
+    border-radius: 1rem; 
+    background-color: #fff2; 
+    .delete {
+      position: absolute; 
+      right: 0.25rem; 
+      top: 0.25rem; 
+      text-align: center; 
+      cursor: pointer; 
+      width: @delSize; 
+      height: @delSize; 
+    }
+  }
+}
+
 </style>
 

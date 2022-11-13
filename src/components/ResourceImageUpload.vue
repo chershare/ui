@@ -3,7 +3,7 @@ import axios from 'axios'
 import { ref } from 'vue' 
 
 import { useSettingsStore } from '@/stores/settings'
-import { useNewResourceStore } from '@/stores/new-resources'
+import { useNewResourceStore } from '@/stores/new-resource'
 
 // import UploadedImage from './UpoadedImage.vue'
 
@@ -42,22 +42,24 @@ async function fileChange(event: Event) {
       }
     }
   }
-  // loading = false
+  loading = false
 }
 
 </script>
 
 <template>
-  <div class=uploadedImage v-for="url, i in imageUrls" :key=i :style="{backgroundImage: 'url('+url+')'}"
-    @click="editImage = url">
-    <template v-if="url == editImage"> 
-      <button @click.stop="editImage = ''" class='top left'> ok </button>
-      <button @click.stop="imageUrls.splice(i,1)" class='top right'> remove </button>
-      <button @click.stop="(i > 0) && ([imageUrls[i-1], imageUrls[i]] = [imageUrls[i], imageUrls[i-1]])" class='bottom left'> shift left </button>
-      <button @click.stop="(i + 1 < imageUrls.length) && ([imageUrls[i+1], imageUrls[i]] = [imageUrls[i], imageUrls[i+1]])" class='bottom right'> shift right </button>
-    </template>
-  </div>
   <input @change="fileChange" type="file" accept="image/*" multiple :hidden="loading">
+  <div>
+    <div class=uploadedImage v-for="url, i in imageUrls" :key=i :style="{backgroundImage: 'url('+url+')'}"
+      @click="editImage = url">
+      <template v-if="url == editImage"> 
+        <button @click.stop="editImage = ''" class='top left'> ok </button>
+        <button @click.stop="imageUrls.splice(i,1)" class='top right'> remove </button>
+        <button @click.stop="(i > 0) && ([imageUrls[i-1], imageUrls[i]] = [imageUrls[i], imageUrls[i-1]])" class='bottom left'> shift left </button>
+        <button @click.stop="(i + 1 < imageUrls.length) && ([imageUrls[i+1], imageUrls[i]] = [imageUrls[i], imageUrls[i+1]])" class='bottom right'> shift right </button>
+      </template>
+    </div>
+  </div>
 </template>
 
 <style lang=less scoped>

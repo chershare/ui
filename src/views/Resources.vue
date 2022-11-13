@@ -1,46 +1,146 @@
 <script lang=ts setup>
 import axios from 'axios'
 
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { useSettingsStore } from '@/stores/settings'
-import { useResourceResultsStore } from '@/stores/resource-results'
+import { useResourceBrowserStore } from '@/stores/resource-browser'
+import { useResourcesStore } from '@/stores/resources'
 
 import ResourceDetails from '@/components/ResourceDetails.vue'
+import { computed } from '@vue/reactivity'
 
 const settings = useSettingsStore()
-const resourceResults = useResourceResultsStore()
+const resourceBrowser = useResourceBrowserStore()
+const resources = useResourcesStore()
+
+let selected = ref(undefined as number | undefined) 
+function deselect() {
+  selected.value = undefined
+}
 
 function getResources() {
   const url = settings.mediaServerUrl + '/' + 'resources'
   axios.get(url)
     .then((res: any) => {
-      resourceResults.results = res.data.map((row: any) => ({
-        title: row.title, 
-        description: row.description
-      }))
+      deselect()
+      res.data.forEach((row: any) => {
+        resources.data[row.name] = {
+          name: row.name,  
+          title: row.title, 
+          description: row.description, 
+          contactInfo: row.contactInfo, 
+
+          imagesUrls: [row.titleImage], 
+          titleImage: row.titleImage, 
+
+          priceTerm: "",
+
+          quotes: [], // later add row price & search date range
+
+          tagList: row.tagList, 
+        }
+      })
+      console.log(resources.$state)
+      resourceBrowser.results = res.data.map((row: any) => row.name) 
     })
+}
+
+function showDetails(resName: string) {
+  // TODO: router switch to details
 }
 
 onMounted(() => {
   getResources() 
 })
+
+const resourceResults = computed(() => resourceBrowser.results.map((resName: string) => resources.data[resName])) 
 </script>
 
 <template>
   <div class="resources">
     <h1>Resources</h1>
     <div class="results">
-      {{ resourceResults }}
-      <div class="resource" v-for="resource in resourceResults.results">
-        <h3> {{ resource.title }} </h3>
-        <p> {{ resource.description }} </p>
+      <div class="resource" v-for="resource in resourceResults" :key=resource.name>
+        <div class="title" :style="`background-image:url('${resource.titleImage}')`">
+          <div class=gradient-box>
+            <h2> {{ resource.title }} </h2>
+          </div>
+        </div>
+        <div class="details" @click="showDetails(resource.name)">
+          <div class="tags">
+            <span class=tag v-for="tag, i in resource.tagList.split(',')" :key=i>
+              {{tag}}
+            </span>
+          </div>
+          <p> {{ resource.description }} </p>
+        </div>
       </div>
-      <ResourceDetails/>
+      <ResourceDetails 
+        v-if="selected !== undefined"
+        :range="resourceBrowser.filters.range ?? [Date.now(), Date.now() + 1]"
+        :resource="resourceBrowser.results[selected]"
+        />
     </div>
+    <p>debug: <pre>{{ JSON.stringify(resourceBrowser.$state, null, "  ") }}</pre></p>
   </div>
 </template>
 
-<style scss scoped>
+<style lang=less scoped>
+@resColor: #333f; 
+.resource {
+  border-radius: 1rem; 
+  box-shadow: 0 0 1.2rem #000; 
+  transition: box-shadow 0.1s ease-out; 
+  &:hover {
+    box-shadow: 0 0 0.5rem #000; 
+  }
+  overflow: hidden; 
+  .title {
+    position: relative; 
+    max-width: 100%; 
+    padding: 33%; 
+    background-size: cover; 
+    background-repeat: none; 
+    background-position: center; 
+    .gradient-box {
+      position: absolute; 
+      bottom: 0; 
+      left: 0; 
+      width: 100%; 
+      background-image: linear-gradient(#0000, @resColor);
+      h2 {
+        padding: 1rem; 
+        padding-top: 10rem;
+        margin: 0; 
+      }
+    }
+  }
+  .details {
+    background-color: @resColor;
+    padding: 1rem; 
+    padding-top: 0; 
+    .tags {
+      .tag {
+        @tagHeight: 1rem; 
+        /* copied from views/CreateRes.vue */
+        display: inline-block; 
+        position: relative; 
+        height: @tagHeight; 
+        line-height: @tagHeight; 
+        margin: 0.2rem 0; 
+        padding: 0.25rem 0.5rem; 
+        border-radius: 1rem; 
+        background-color: #fff2; 
+      }
+      .tag + .tag {
+        margin-left: 0.2rem; 
+      }
+    }
+  }
+  & + & {
+    margin-top: 1rem; 
+  }
+}
 
 </style>

@@ -4,7 +4,8 @@
 
 <template>
   <div class="bookings">
-    <h1>bookings</h1>
+    <h1>My Bookings</h1>
+
   </div>
 </template>
 
