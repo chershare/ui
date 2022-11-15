@@ -7,8 +7,8 @@ import { useSettingsStore } from '@/stores/settings'
 import { useResourceBrowserStore } from '@/stores/resource-browser'
 import { useResourcesStore } from '@/stores/resources'
 
-import ResourceDetails from '@/components/ResourceDetails.vue'
 import { computed } from '@vue/reactivity'
+import router from '@/router'
 
 const settings = useSettingsStore()
 const resourceBrowser = useResourceBrowserStore()
@@ -31,12 +31,12 @@ function getResources() {
           description: row.description, 
           contactInfo: row.contactInfo, 
 
-          imagesUrls: [row.titleImage], 
+          imageUrls: [row.titleImage], 
           titleImage: row.titleImage, 
 
           priceTerm: "",
 
-          quotes: [], // later add row price & search date range
+          approximatePrice: row.price, 
 
           tagList: row.tagList, 
         }
@@ -46,8 +46,14 @@ function getResources() {
     })
 }
 
-function showDetails(resName: string) {
-  // TODO: router switch to details
+function showDetails(resourceName: string) {
+  console.log("clicked") 
+  router.push({
+    path: "/resources/" + resourceName,
+    name: "resource", 
+    params: { resourceName }, 
+    query: { dates: resourceBrowser.filters.dates }
+  })
 }
 
 onMounted(() => {
@@ -61,13 +67,16 @@ const resourceResults = computed(() => resourceBrowser.results.map((resName: str
   <div class="resources">
     <h1>Resources</h1>
     <div class="results">
-      <div class="resource" v-for="resource in resourceResults" :key=resource.name>
+      <div class="resource" 
+        v-for="resource in resourceResults" 
+        @click="showDetails(resource.name)" 
+        :key=resource.name>
         <div class="title" :style="`background-image:url('${resource.titleImage}')`">
           <div class=gradient-box>
             <h2> {{ resource.title }} </h2>
           </div>
         </div>
-        <div class="details" @click="showDetails(resource.name)">
+        <div class="details">
           <div class="tags">
             <span class=tag v-for="tag, i in resource.tagList.split(',')" :key=i>
               {{tag}}
@@ -76,11 +85,6 @@ const resourceResults = computed(() => resourceBrowser.results.map((resName: str
           <p> {{ resource.description }} </p>
         </div>
       </div>
-      <ResourceDetails 
-        v-if="selected !== undefined"
-        :range="resourceBrowser.filters.range ?? [Date.now(), Date.now() + 1]"
-        :resource="resourceBrowser.results[selected]"
-        />
     </div>
     <p>debug: <pre>{{ JSON.stringify(resourceBrowser.$state, null, "  ") }}</pre></p>
   </div>

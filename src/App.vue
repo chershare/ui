@@ -44,11 +44,13 @@ onMounted(() => {
 
     <div class="links">
       <nav>
-        <RouterLink to="/">Overview</RouterLink>
-        <RouterLink to="/res/create">Create Resource</RouterLink>
-        <RouterLink v-if="near.accountId" :to="`/res?owner=${near.accountId}`">My Resources</RouterLink>
-        <RouterLink to="/res">Browse Resource</RouterLink>
-        <RouterLink :to="`/bookings?booker=${near.accountId}`">My Bookings</RouterLink>
+        <RouterLink :to="{ path: '/' }">Overview</RouterLink>
+        <RouterLink :to="{ name: 'create-resource' }">Create Resource</RouterLink>
+        <RouterLink :to="{ name: 'resources' }">Browse Resource</RouterLink>
+        <template v-if="near.accountId">
+          <RouterLink :to="{ name: 'resources', query: { owner: near.accountId } }" >My Resources</RouterLink>
+          <RouterLink :to="{ name: 'bookings', query: { booker: near.accountId } }">My Bookings</RouterLink>
+        </template>
       </nav>
     </div>
   </header>
@@ -131,6 +133,10 @@ nav {
   a + a {
     margin-left: 0.5rem;
   }
+}
+
+a {
+  color: #9af; 
 }
 
 </style>

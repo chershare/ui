@@ -12,7 +12,7 @@ const initialState = {
       min: undefined as number | undefined, 
       max: undefined as number | undefined
     },
-    range: undefined as [number, number] | undefined,
+    dates: undefined as [number, number] | undefined,
     // search: "", // no full text search for now
   }, 
   results: [] as string[] // ids that point to the resources store

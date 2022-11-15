@@ -1,5 +1,22 @@
 - use css @media in order to distinguish between mobile and desktop
 
+
+#2022-11-13
+- Irgendwie nochmal sauber überlegen was für Chershare ne gute architektur ist für die Details page...
+	- Ich führ da halt verschiedene Infoquellen zusammen
+		- was schon da ist (resources.data) 
+		- mediaserver api
+			- bookings
+		- blockchain
+			- price quote (if requested) 
+	- Irgendwie gut switchen zwischen diesen Infos
+		- Oder alles von der Chain? 
+			- nee, bookings von der Chain nicht gut
+				- weil viel bei großer range
+
+
+#2022
+
 - next task is to build the create resource workflow
   - including smart contracts
   - but still no style ;) 
