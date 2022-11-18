@@ -3,6 +3,8 @@ import ResourceImageUpload from '../components/ResourceImageUpload.vue'
 
 import { useNewResourceStore, timeDurations } from '@/stores/new-resource'
 import { useNearStore } from '@/stores/near'
+ 
+import * as NEAR from 'near-api-js'
 
 import config from '@/config'
 
@@ -27,6 +29,14 @@ async function createResourceOnChain() {
   if(nameExists) {
     errors.value.push("This name is already taken") 
   }
+  const yoctoPerBooking = NEAR.utils.format.parseNearAmount(newResource.pricing.nearPerBooking)
+  const yoctoPerUnit = NEAR.utils.format.parseNearAmount(newResource.pricing.nearPerUnit) 
+  if(yoctoPerUnit == null) {
+    errors.value.push("failed to parse NEAR amount per time unit") 
+  }
+  if(yoctoPerBooking == null) {
+    errors.value.push("failed to parse NEAR amount per booking") 
+  }
   if(errors.value.length == 0) {
     const args = {
       name: newResource.name, 
@@ -36,7 +46,11 @@ async function createResourceOnChain() {
         image_urls: [...newResource.imageUrls], 
         contact: newResource.contactInfo,
         tags: newResource.tags, 
-        pricing: newResource.contractFormatPricing, 
+        pricing: {
+          price_per_booking: yoctoPerBooking,
+          price_per_ms: BigInt(yoctoPerUnit!) / BigInt(timeDurations[newResource.pricing.unit]),  
+          full_refund_period_ms: newResource.pricing.fullRefundPeriod * timeDurations[newResource.minDurationUnit] 
+        }, 
         coordinates: newResource.coordinates, // TODO use geocoding
         min_duration_ms: newResource.minDuration * timeDurations[newResource.minDurationUnit], 
       }
@@ -56,9 +70,9 @@ async function createResourceOnChain() {
 let tagInput = ref(null)
 function addTag(e: Event) {
   let el = e.target as HTMLInputElement
-  let tag = el.value
+  let tag = el.value.trim()
   if(tag !== "" && !newResource.tags.some(a => a == tag)) {
-    newResource.tags.push(el.value) 
+    newResource.tags.push(tag) 
     el.value = ""
   }
 }
@@ -107,17 +121,17 @@ function popTag(e: Event) {
       </select>
       <p>
         Price in NEAR per {{ newResource.pricing.unit.toLowerCase() }}: 
-        <input v-model.number=newResource.pricing.nearPerUnit type=text placeholder="NEAR per unit"/> 
+        <input v-model=newResource.pricing.nearPerUnit type=text placeholder="NEAR per unit"/> 
       </p>
       <p>
         Fixed price per booking in NEAR: 
-        <input v-model.number=newResource.pricing.nearPerBooking type=text placeholder="NEAR per booking"/> 
+        <input v-model=newResource.pricing.nearPerBooking type=text placeholder="NEAR per booking"/> 
       </p>
       <p>
         100% <b>refund</b>
         <input v-model.number=newResource.pricing.fullRefundPeriod type=text placeholder=""/> 
-        {{newResource.pricing.unit.toLowerCase()}} before booking begin. <br/>
-        Linear decline from there to 0% at booking begin. 
+        {{newResource.pricing.unit.toLowerCase()}} before booking starts. <br/>
+        Linear decline from there to 0% at booking start. 
       </p>
       <h3>Minimum booking duration</h3>
       <p>What's the minimum period that the resource can be rented for?</p>

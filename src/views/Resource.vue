@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { onBeforeMount, onMounted, ref, type PropType } from 'vue' 
+import { onMounted, ref } from 'vue' 
 
 import * as NEAR from 'near-api-js'
 
@@ -9,7 +9,6 @@ import { useNewBookingStore } from '@/stores/new-booking'
 import { useNearStore } from '@/stores/near'
 import { useResourcesStore } from '@/stores/resources'
 import { useResourceStore } from '@/stores/resource'
-import { useResourceBrowserStore } from '@/stores/resource-browser'
 
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -23,7 +22,6 @@ const newBooking = useNewBookingStore()
 const near = useNearStore()
 const resources = useResourcesStore()
 const resource = useResourceStore()
-const resourceBrowser = useResourceBrowserStore() 
 
 const props = defineProps({
   resourceName: {
@@ -48,17 +46,18 @@ const baseInfo = computed(() =>
 ) 
 
 const humanReadablePrice = computed(() => {
-  if(resource.exactPrice !== undefined) {
-    return NEAR.utils.format.formatNearAmount(resource.exactPrice.toString())
+  if(newBooking.exactPrice !== undefined) {
+    return NEAR.utils.format.formatNearAmount(newBooking.exactPrice.toString())
   } else {
     return "choose date range to see a price" 
   }
 })
 
-// const contractAccountId = computed(() => 
-//   props.resourceName + "." + config.contract
-// )
+const resourceContractAccountId = computed(() => 
+  props.resourceName + "." + config.contract
+)
 
+let loadResourceErrors = ref([] as string[]) 
 function getBaseInfo() {
   console.log("get base info", baseInfo.value, props.resourceName) 
   if(baseInfo.value == undefined && props.resourceName) {
@@ -83,24 +82,40 @@ function getBaseInfo() {
 
             tagList: row.tagList, 
           }
+        } else {
+          loadResourceErrors.value.push(`No response data. Maybe the indexer has missed resource creation '${props.resourceName}' or it does not exist`)
         }
       })
+      .catch((reason: any) => {
+        loadResourceErrors.value.push("Request rejected, because " + reason) 
+      }) 
+      
     }
 }
 
+const loadingPrice = ref(0) 
 function getQuote() {
-  console.log("ask for prices") 
+  console.log("ask for prices.") 
+  newBooking.exactPrice = undefined
   if(newBooking.dates && props.resourceName) {
-    let contactAccountId = props.resourceName + "." +  config.contract
+    console.log("calling book on contract", resourceContractAccountId.value) 
+    loadingPrice.value++
     near.viewMethod(
-      contactAccountId, 
+      resourceContractAccountId.value, 
       "get_quote",  // TODO implement smart contract function
       { 
         start: newBooking.dates[0] , 
         end: newBooking.dates[1] 
       }
     ).then((result: any) => {
-      resource.exactPrice = BigInt(result)
+      console.log(loadingPrice.value) 
+      if(loadingPrice.value > 1) {
+        console.log("skipping old price quote response") 
+      } else {
+        newBooking.exactPrice = BigInt(result)
+      }
+    }).finally(() => {
+      loadingPrice.value--
     })
   }
 }
@@ -120,8 +135,35 @@ function getImages() {
     }
 }
 
+let bookingErrors = ref([] as string[])
+
+function book() {
+  bookingErrors.value = []
+  if(newBooking.dates == undefined) {
+    bookingErrors.value.push("No date selected") 
+  } else if (newBooking.exactPrice == undefined) {
+    bookingErrors.value.push("Exact booking price not known. Try again!") 
+  } else {
+    // TODO: check for collisions
+    if(bookingErrors.value.length == 0) {
+      const args = {
+        start: newBooking.dates[0], 
+        end: newBooking.dates[1], 
+      } 
+      console.log("send book contract call", args) 
+      near.callMethod(
+        resourceContractAccountId.value, 
+        "book",  
+        args, 
+        30, 
+        newBooking.exactPrice.toString()
+      ).then(() => console.log("success"))
+      .catch(e => console.error("something failed", e) )
+    }
+  }
+}
+
 function getBookings() {
-  // TODO load bookings from mediaserver
   console.log("get bookings") 
   if(props.resourceName) {
     const url = settings.mediaServerUrl + '/resources/' + props.resourceName + '/bookings' 
@@ -131,6 +173,7 @@ function getBookings() {
         if(res.data) {
           let rows = res.data 
           resource.bookings = rows
+          console.log("got bookings", res.data) 
         }
       })
     }
@@ -139,8 +182,15 @@ function getBookings() {
 </script>
 
 <template>
-  <p v-if="baseInfo == undefined"> 
-    loading resource ...
+  <p v-if='loadResourceErrors.length > 0'>
+    <ul class=errors>
+      <li v-for="error, key in loadResourceErrors" :key=key>
+        {{ error }}
+      </li>
+    </ul>
+  </p>
+  <p v-else-if="baseInfo == undefined"> 
+      loading resource ...
   </p>
   <template v-else>
     <h3>{{baseInfo.name}}</h3>
@@ -174,7 +224,7 @@ function getBookings() {
   <div v-for="booking in resource.bookings">
     {{ booking }}
   </div>
-  <button> 
+  <button @click=book> 
     book
   </button>
   <p>

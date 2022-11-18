@@ -1,14 +1,13 @@
 import { defineStore } from "pinia";
 
 interface Booking {
-  begin: number, 
+  start: number, 
   end: number, 
 }
 
 interface State {
   imageUrls: string[], 
   bookings: Booking[], 
-  exactPrice? : BigInt
 }
 
 const initialState: State = {

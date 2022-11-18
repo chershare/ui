@@ -1,13 +1,12 @@
 import { defineStore } from "pinia";
 
-const initalState = {
-  dates: undefined as undefined | [number, number], 
+interface State {
+  dates? : [number, number], 
+  exactPrice? : BigInt
 }
 
-export type State = typeof initalState
-
-export const useNewBookingStore = defineStore("new-resource", {
-  state: () => initalState, 
+export const useNewBookingStore = defineStore("new-booking", {
+  state: () => ({} as State),  
   getters: {
   }
 })

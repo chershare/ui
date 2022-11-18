@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import Near from 'near-api-js'
 
 // in the user interface we deal with weeks and minutes and stuff
 // on the contract side of things there are only milliseconds, only time stamps
@@ -22,8 +23,8 @@ const initalState = {
   tags: [] as string[], 
   pricing: {
     unit: 'Days' as TimeUnit, 
-    nearPerUnit: 1, 
-    nearPerBooking: 0, 
+    nearPerUnit: '', 
+    nearPerBooking: '',
     fullRefundPeriod: 7
   }, 
   minDuration: 1, 
@@ -47,13 +48,5 @@ BigInt.prototype.toJSON = function () {
 export const useNewResourceStore = defineStore("new-resource", {
   state: () => initalState, 
   getters: {
-    contractFormatPricing(state: State) : any {
-      let unitMs = timeDurations[state.pricing.unit]
-      return {
-        price_per_booking: BigInt(state.pricing.nearPerBooking) * 10n ** 24n,
-        price_per_ms: BigInt(state.pricing.nearPerUnit) * 10n ** 24n / BigInt(unitMs), 
-        full_refund_period_ms: state.pricing.fullRefundPeriod * unitMs
-      }
-    },
   }
 })
