@@ -8,14 +8,13 @@ import { useSettingsStore } from '@/stores/settings'
 import { useNewBookingStore } from '@/stores/new-booking'
 import { useNearStore } from '@/stores/near'
 import { useResourcesStore } from '@/stores/resources'
-import { useResourceStore } from '@/stores/resource'
+import { useResourceStore, type Booking } from '@/stores/resource'
 
-import Datepicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 import config from '@/config'
 import { computed } from '@vue/reactivity'
-import { useRoute } from 'vue-router'
 
 const settings = useSettingsStore()
 const newBooking = useNewBookingStore()
@@ -30,15 +29,18 @@ const props = defineProps({
   }
 })
 
-const route = useRoute()
-
 let selectedImage = ref(0)
 
 onMounted(() => {
   getBaseInfo()
   getImages()
   getQuote()
-  getBookings()
+  let now = new Date()
+  getBookingsForCalendar({
+    instance: 0, 
+    month: now.getMonth(), 
+    year: now.getFullYear()
+  }) 
 })
 
 const baseInfo = computed(() => 
@@ -163,20 +165,95 @@ function book() {
   }
 }
 
-function getBookings() {
+let fullyBlockedDays = ref({} as {[date: number]: boolean}) // counts how many bookings are there
+let partiallyBlockedDays = ref({} as {[date: number]: boolean}) 
+
+function getBookings(from: number, until: number) {
   console.log("get bookings") 
   if(props.resourceName) {
-    const url = settings.mediaServerUrl + '/resources/' + props.resourceName + '/bookings' 
+    const query = new URLSearchParams({
+      from: from.toString(), 
+      until: until.toString()
+    }) 
+    const url = settings.mediaServerUrl + '/resources/' + props.resourceName + '/bookings?' + query.toString()
     console.log("requesting bookings", url) 
-    axios.get(url)
+    axios.get<Booking[]>(url)
       .then((res) => {
-        if(res.data) {
-          let rows = res.data 
-          resource.bookings = rows
-          console.log("got bookings", res.data) 
+        if(typeof(res.data) == 'string') {
+          loadResourceErrors.value.push("could not load bookings: " + res.data) 
+        } else if(res.data) {
+          fullyBlockedDays 
+          resource.bookings = res.data 
+          res.data.forEach(booking => {
+            blockDays(
+              Math.max(from, booking.start), 
+              Math.min(booking.end, until)
+            ) 
+          }) 
         }
       })
     }
+}
+
+// okay, we have to make one thing clear here: "end" means the first ms that is not part of the booking. 
+function blockDays(start: number, end: number) {
+  let startDate = new Date(start) 
+  
+  let day = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())
+  let isPartially = day.getTime() !== start
+
+  day.setDate(day.getDate() + 1) 
+
+  while(day.getTime() < end) {
+    if(isPartially) {
+      partiallyBlockedDays.value[day.getTime()] = true
+      isPartially = false
+    } else {
+      fullyBlockedDays.value[day.getTime()] = true
+    }
+    day.setDate(day.getDate() + 1) 
+  }
+
+  isPartially ||= day.getTime() !== end
+
+  if(isPartially) {
+    partiallyBlockedDays.value[day.getTime()] = true
+  } else {
+    fullyBlockedDays.value[day.getTime()] = true
+  }
+}
+
+function getBookingsForCalendar(args: {
+  instance: number, 
+  month: number, 
+  year: number
+}) {
+  let ersterTag = new Date(args.year, args.month, 1) 
+  let from = new Date(ersterTag.getTime()) 
+  from.setDate(from.getDate() - 7) 
+  let until = new Date(ersterTag.getTime())
+  until.setMonth(until.getMonth() + 1) 
+  until.setDate(until.getDate() + 7) 
+  getBookings(from.getTime(), until.getTime())
+}
+
+function fullyBlocked(date: Date) {
+  let dayStart = date.getTime()
+  let dateEnd = new Date(date)
+  dateEnd.setDate(dateEnd.getDate() + 1)
+  let dayEnd = dateEnd.getTime()
+  for(let booking of resource.bookings) {
+    console.log("booking.start", booking.start) 
+    console.log("day start", dayStart) 
+    if(booking.start <= dayStart && booking.end >= dayEnd) {
+      return true
+    } 
+  }
+  return false
+}
+
+function partiallyBlocked(d: string) {
+  return false
 }
 
 </script>
@@ -199,7 +276,7 @@ function getBookings() {
         {{tag}}
       </span>
     </div>
-    <p>{{baseInfo.description}}</p>
+    <p>{{ baseInfo.description }}</p>
     <div class='gallery'>
       <div class=thumbnail  v-for="imgUrl, key in resource.imageUrls" :key=key 
         :class="{selected: key == selectedImage}"
@@ -218,21 +295,32 @@ function getBookings() {
       is24
       :start-time="{hours: 12, minutes:0, seconds: 0}"
       @update:model-value=getQuote()
-      text-input />
+      @update-month-year=getBookingsForCalendar
+      text-input>
+      <template #day="{ day, date }">
+        <div v-if="fullyBlockedDays[date.getTime()]" class='blockBg fully'>
+        </div>
+        <div v-else-if="partiallyBlockedDays[date.getTime()]" class='blockBg partially'>
+        </div>
+        {{ day }}
+      </template>
+    </Datepicker>
   </template>
   <p> price: {{ humanReadablePrice }} </p>
-  <div v-for="booking in resource.bookings">
-    {{ booking }}
-  </div>
   <button @click=book> 
     book
   </button>
+  <h3>debug</h3>
+  bookings: 
+  <div v-for="booking in resource.bookings">
+    {{ booking }}
+  </div>
   <p>
     dates:  
-    {{ newBooking.dates}}
+    {{ newBooking.dates }}
   </p>
   <p>
-    image urls: {{ resource.imageUrls}}
+    image urls: {{ resource.imageUrls }}
   </p>
   <p>
     bookings: {{ resource.bookings }}
@@ -283,6 +371,20 @@ function getBookings() {
   }
   .tag + .tag {
     margin-left: 0.2rem; 
+  }
+}
+
+.blockBg {
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  height: 100%; 
+  width: 100%; 
+  &.fully {
+    background-color: #f005; 
+  }
+  &.partially{
+    background-color: #f803; 
   }
 }
 </style>

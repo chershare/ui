@@ -1,8 +1,10 @@
 import { defineStore } from "pinia";
 
-interface Booking {
+export interface Booking { // conform to db
+  resource_name: string, 
+  booker_account_id: string, 
   start: number, 
-  end: number, 
+  end: number,
 }
 
 interface State {
