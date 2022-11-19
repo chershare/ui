@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { Booking } from '@/api-types'
+import type { Booking } from '@/api-types'
 
 interface State {
   imageUrls: string[], 

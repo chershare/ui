@@ -148,7 +148,7 @@ function popTag(e: Event) {
       </p>
       <h3>Name</h3>
       <p>Choose a name for your resource.</p>
-      <input v-model=newResource.name type=text placeholder=title />
+      <input v-model=newResource.name type=text placeholder="resource id"/>
       <ul>
         <li v-for="error in errors"> {{ error }} </li>
       </ul>
