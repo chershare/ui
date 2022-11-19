@@ -8,7 +8,9 @@ import { useSettingsStore } from '@/stores/settings'
 import { useNewBookingStore } from '@/stores/new-booking'
 import { useNearStore } from '@/stores/near'
 import { useResourcesStore } from '@/stores/resources'
-import { useResourceStore, type Booking } from '@/stores/resource'
+import { useResourceStore } from '@/stores/resource'
+
+import type { Booking } from '@/api-types'
 
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -63,36 +65,8 @@ let loadResourceErrors = ref([] as string[])
 function getBaseInfo() {
   console.log("get base info", baseInfo.value, props.resourceName) 
   if(baseInfo.value == undefined && props.resourceName) {
-    console.log("requesting") 
-    const url = settings.mediaServerUrl + '/' + 'resources' + "/" + props.resourceName
-    axios.get(url)
-      .then((res) => {
-        if(res.data) {
-          let row = res.data
-          resources.data[row.name] = {
-            name: row.name,  
-            title: row.title, 
-            description: row.description, 
-            contactInfo: row.contactInfo, 
-
-            imageUrls: [row.titleImage] || [], 
-            titleImage: row.titleImage, 
-
-            approximatePrice: row.price, 
-
-            priceTerm: "",
-
-            tagList: row.tagList, 
-          }
-        } else {
-          loadResourceErrors.value.push(`No response data. Maybe the indexer has missed resource creation '${props.resourceName}' or it does not exist`)
-        }
-      })
-      .catch((reason: any) => {
-        loadResourceErrors.value.push("Request rejected, because " + reason) 
-      }) 
-      
-    }
+    resources.loadResource(props.resourceName) 
+  }
 }
 
 const loadingPrice = ref(0) 

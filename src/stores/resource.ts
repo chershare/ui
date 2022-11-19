@@ -1,11 +1,5 @@
 import { defineStore } from "pinia";
-
-export interface Booking { // conform to db
-  resource_name: string, 
-  booker_account_id: string, 
-  start: number, 
-  end: number,
-}
+import { Booking } from '@/api-types'
 
 interface State {
   imageUrls: string[], 
