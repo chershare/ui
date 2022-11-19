@@ -1,82 +1,84 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
-import Header from "./components/Header.vue";
+import { useRouter } from 'vue-router'
 
 import { useNearStore } from './stores/near'
 
 const near = useNearStore()
+const router = useRouter()
 
 onMounted(() => {
   near.startUp()
 })
 
+function goToOverview() {
+  router.push({ path: '/' })
+}
+function goToProfile() {
+  router.push({ name: 'profile' })
+}
+function goToCreateResource() {
+  router.push({ name: 'create-resource' })
+}
+function goToResourceBrowser() {
+  router.push({ name: 'resources' })
+}
+function goToMyResources() {
+  router.push({ name: 'resources', query: { owner: near.accountId }}) 
+}
+function goToMyBookings() {
+  router.push({ name: 'bookings', query: { booker: near.accountId }}) 
+}
+
+const selectedButton = ref('overview') 
+
+const navButtons = {
+  profile: {
+    onclick: goToProfile, 
+  }, 
+  overview: {
+    onclick: goToOverview
+  }, 
+  createResource: {
+    onclick: goToCreateResource
+  }, 
+  browseResources: {
+    onclick: goToResourceBrowser,
+  }, 
+  myResources: {
+    onclick: goToMyResources, 
+  }, 
+  myBookings: {
+    onclick: goToMyBookings, 
+  }
+}; 
+
 </script>
 
 <template>
-  <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="@/assets/logo.png"
-      width="125"
-      height="125"
-    />
+  <div class=content>
+    <RouterView />
+    <div class=spacer />
+  </div>
 
-    <div class=near>
-      <h2>NEAR connection</h2>
-      <ul>
-      <li> Account Id: {{ near.accountId }} </li>
-      <li> Test message: {{ near.testMessage }} </li>
-      </ul>
-      <button v-if="near.signedIn" @click=near.signOut>
-        sign out
-      </button>
-      <button v-else @click=near.signIn>
-        sign in
-      </button>
-      <button @click=near.getTestMessage>
-        query test message
-      </button>
-    </div>
-
-    <div class="links">
-      <nav>
-        <RouterLink :to="{ path: '/' }">Overview</RouterLink>
-        <RouterLink :to="{ name: 'create-resource' }">Create Resource</RouterLink>
-        <RouterLink :to="{ name: 'resources' }">Browse Resource</RouterLink>
-        <template v-if="near.accountId">
-          <RouterLink :to="{ name: 'resources', query: { owner: near.accountId } }" >My Resources</RouterLink>
-          <RouterLink :to="{ name: 'bookings', query: { booker: near.accountId } }">My Bookings</RouterLink>
-        </template>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <div id=shadow />
+  <div class=menu>
+    <button v-for="button, key in navButtons" 
+      :key=key
+      @click="(selectedButton = key) && button.onclick()"
+      :class="{[key]: true, selected: key == selectedButton}" />
+  </div>
 </template>
 
 <style lang=less>
 
-/* body {
-  background-color: #211; 
-  color: #fbf; 
-}
-
-a {
-  color: #88f; 
-}
-
-input {
-  background-color: #000; 
-} */
-
 /* {
   outline: 1px solid #0ff4; 
   background-color: #f0f1; 
-} /**/
+} /* debug */
 
 html {
   background-color: #242424; 
@@ -123,20 +125,70 @@ button {
   }
 }
 
+a {
+  color: #88f; 
+}
 
-nav {
-  a {
-    display: inline-block; 
-    @interactive(); 
-    color: #fff; 
-  }
-  a + a {
-    margin-left: 0.5rem;
+.content {
+  .spacer {
+    height: calc(100vw / 4); 
   }
 }
 
-a {
-  color: #9af; 
+.menu {
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  button {
+    @size: calc(100vw / 6);
+    vertical-align:bottom; 
+    width: @size; 
+    height: @size;  
+    margin: 0; 
+    border-radius: 0; 
+    border-top-right-radius: 4vw; 
+    border-top-left-radius: 4vw; 
+    background-color: #fff; 
+    background-size: 70%; 
+    background-repeat: no-repeat; 
+    background-position: center; 
+    box-shadow: 0 1rem 1rem black; 
+    transform: translate(0, 0); 
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+    &.selected {
+      transform: translate(0, 0.5rem); 
+      background-color: #999; 
+      height: calc(@size - 0.3rem); 
+      box-shadow: 0 0 0 black; 
+    }
+  }
+  .profile {
+    background-image: url('@/assets/menu-icons/near.svg'); 
+  }
+  .overview {
+    background-image: url('assets/logo.png'); 
+  }
+  .createResource {
+    background-image: url('assets/menu-icons/create-resource.svg') 
+  }
+  .browseResources {
+    background-image: url('assets/menu-icons/browse-resources.svg') 
+  }
+  .myResources {
+    background-image: url('assets/menu-icons/my-resources.svg') 
+  }
+  .myBookings {
+    background-image: url('assets/menu-icons/my-bookings.svg');
+  }
+}
+
+#shadow {
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  height: calc(100vw / 5); 
+  width: 100vw; 
+  background-image: linear-gradient(#0000, #000a, #000f); 
 }
 
 </style>

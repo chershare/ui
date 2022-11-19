@@ -66,34 +66,35 @@ async function fileChange(event: Event) {
 .uploadedImage {
   position: relative;
   display: inline-block;
-  min-height: 9rem; 
-  min-width: 9rem; 
+  width: calc(50% - 1rem); 
+  padding: 0; 
+  padding-top: calc(50% - 1rem);
   margin: 0.5rem; 
   border-radius: 0.5rem; 
   background-size: contain; 
   background-repeat: no-repeat; 
   background-position: center; 
   background-color: #555;
-  padding: 0; 
   border: 0; 
   button {
+    background-color: #000b;
     position: absolute; 
-    width: 4.0rem; 
-    height: 4.0rem; 
+    width: 40%; 
+    height: 40%; 
     border-radius: 0.5rem; 
     border: none; 
     display: inline-block; 
     &.top{
-      top:0.33rem; 
+      top:5%; 
     }
     &.bottom {
-      bottom:0.33rem; 
+      bottom:5%; 
     }
     &.left {
-      left: 0.33rem; 
+      left: 5%; 
     }
     &.right {
-      right: 0.33rem; 
+      right: 5%; 
     }
   }
 }
