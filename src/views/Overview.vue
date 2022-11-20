@@ -5,7 +5,7 @@ const near = useNearStore()
 
 <template>
   <div class="overview">
-    <h1>Overview</h1>
+    <h1>CherShare</h1>
 
     <h2>Share resources</h2>
     <p>

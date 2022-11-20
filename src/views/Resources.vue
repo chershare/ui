@@ -86,7 +86,7 @@ const resourceResults = computed(() => resourceBrowser.results.map((resName: str
         </div>
       </div>
     </div>
-    <p>debug: <pre>{{ JSON.stringify(resourceBrowser.$state, null, "  ") }}</pre></p>
+    <!--p>debug: <pre>{{ JSON.stringify(resourceBrowser.$state, null, "  ") }}</pre></p-->
   </div>
 </template>
 

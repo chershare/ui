@@ -153,7 +153,7 @@ function popTag(e: Event) {
         <li v-for="error in errors"> {{ error }} </li>
       </ul>
       <button @click=createResourceOnChain>Create Resource On Chain</button>
-      <p>debug: <pre>{{JSON.stringify(newResource.$state, null, '  ')}}</pre></p>
+      <!--p>debug: <pre>{{JSON.stringify(newResource.$state, null, '  ')}}</pre></p-->
     </div>
   </div>
 </template>

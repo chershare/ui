@@ -36,11 +36,11 @@ function goToMyBookings() {
 const selectedButton = ref('overview') 
 
 const navButtons = {
-  profile: {
-    onclick: goToProfile, 
-  }, 
   overview: {
     onclick: goToOverview
+  }, 
+  profile: {
+    onclick: goToProfile, 
   }, 
   createResource: {
     onclick: goToCreateResource
@@ -129,39 +129,101 @@ a {
   color: #88f; 
 }
 
-.content {
-  .spacer {
-    height: calc(100vw / 4); 
-  }
-}
-
 .menu {
   position: fixed; 
-  bottom: 0; 
-  left: 0; 
   button {
-    @size: calc(100vw / 6);
-    vertical-align:bottom; 
-    width: @size; 
-    height: @size;  
     margin: 0; 
     border-radius: 0; 
-    border-top-right-radius: 4vw; 
-    border-top-left-radius: 4vw; 
     background-color: #fff; 
-    background-size: 70%; 
+    background-size: 65%; 
     background-repeat: no-repeat; 
     background-position: center; 
     box-shadow: 0 1rem 1rem black; 
     transform: translate(0, 0); 
     transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
     &.selected {
-      transform: translate(0, 0.5rem); 
-      background-color: #999; 
-      height: calc(@size - 0.3rem); 
+      background-color: #aaa; 
       box-shadow: 0 0 0 black; 
     }
   }
+}
+
+@media (min-aspect-ratio: 2/3) {
+  .content {
+    margin-left: 11vh; 
+    max-width: 90vh; 
+  }
+  .menu {
+    top: 0; 
+    left: 0; 
+    padding-top: 4vh; 
+    button {
+      display:block; 
+      @size: 10vh; 
+      width: @size; 
+      height: @size;  
+      border-top-right-radius: 4vh; 
+      border-bottom-right-radius: 4vh; 
+      margin-top: -1px; 
+      &.selected {
+        transform: translate(-0.5rem, 0); 
+        height: calc(@size - 0.3rem); 
+      }
+    }
+  }
+  #shadow {
+    display: none; 
+  }
+}
+  
+/* Minimum aspect ratio */
+@media (max-aspect-ratio: 2/3) {
+  .content {
+    .spacer {
+      height: calc(100vw / 4); 
+    }
+  }
+
+  .menu {
+    bottom: 0; 
+    left: 0; 
+    button {
+      @size: calc(100vw / 6);
+      vertical-align:bottom; 
+      width: @size; 
+      height: @size;  
+      margin: 0; 
+      border-radius: 0; 
+      border-top-right-radius: 4vw; 
+      border-top-left-radius: 4vw; 
+      background-color: #fff; 
+      background-size: 65%; 
+      background-repeat: no-repeat; 
+      background-position: center; 
+      box-shadow: 0 1rem 1rem black; 
+      transform: translate(0, 0); 
+      transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+      &.selected {
+        transform: translate(0, 0.5rem); 
+        background-color: #999; 
+        height: calc(@size - 0.3rem); 
+        box-shadow: 0 0 0 black; 
+      }
+    }
+  }
+
+  #shadow {
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    height: calc(100vw / 5); 
+    width: 100vw; 
+    background-image: linear-gradient(#0000, #000a, #000f); 
+  }
+}
+
+
+.menu {
   .profile {
     background-image: url('@/assets/menu-icons/near.svg'); 
   }
@@ -180,15 +242,6 @@ a {
   .myBookings {
     background-image: url('assets/menu-icons/my-bookings.svg');
   }
-}
-
-#shadow {
-  position: fixed; 
-  bottom: 0; 
-  left: 0; 
-  height: calc(100vw / 5); 
-  width: 100vw; 
-  background-image: linear-gradient(#0000, #000a, #000f); 
 }
 
 </style>

@@ -284,7 +284,7 @@ function partiallyBlocked(d: string) {
   <button @click=book> 
     book
   </button>
-  <h3>debug</h3>
+  <!--h3>debug</h3>
   bookings: 
   <div v-for="booking in resource.bookings">
     {{ booking }}
@@ -298,7 +298,7 @@ function partiallyBlocked(d: string) {
   </p>
   <p>
     bookings: {{ resource.bookings }}
-  </p>
+  </p-->
 </template>
 
 <style lang=less scoped>
