@@ -6,6 +6,7 @@ const near = useNearStore()
 <template>
   <div class="overview">
     <h1>CherShare</h1>
+    <p>Rent out and rent whatever you want.</p>
 
     <h2>Share resources</h2>
     <p>
@@ -32,16 +33,16 @@ const near = useNearStore()
       A holiday home, a place for a party, a projector, or a mobile sawmill, 
       whatever you need, there is a good chance, you will find it on Chershare.
     </p>
-    <RouterLink :to="{ name: 'resources' }">Search for a resource</RouterLink>
+    <RouterLink :to="{ name: 'resource-browser' }">Search for a resource</RouterLink>
 
     <template v-if="near.accountId">
       <h2>Manage resources</h2>
       <p>If you are already sharing resources, you can find them</p>
-      <RouterLink :to="{ name: 'resources', query: { owner: near.accountId} }">here</RouterLink>
+      <RouterLink :to="{ name: 'my-resources', query: { owner: near.accountId} }">here</RouterLink>
 
       <h2>Manage bookings</h2>
       <p>If you have booked resources, you can view your bookings </p>
-      <RouterLink :to="{ name: 'resources', query: { booker: near.accountId } }">here</RouterLink>
+      <RouterLink :to="{ name: 'my-bookings', query: { booker: near.accountId } }">here</RouterLink>
     </template>
     <p v-else> 
       <h2>Build NEAR</h2>
@@ -49,7 +50,7 @@ const near = useNearStore()
           Chershare is built on laer 1 blockchain NEAR. 
         </p>
         <p>
-          <a @click=near.signIn >Log in to NEAR</a> to get the full experience of this app. 
+          <button @click=near.signIn >Log in to NEAR</button> to get the full experience of this app. 
         </p>
     </p>
   </div>

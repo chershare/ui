@@ -20,7 +20,8 @@ let loading = false;
 async function fileChange(event: Event) {
   console.log("called") 
   loading = true
-  let files = (event.target as HTMLInputElement).files
+  let element = event.target as HTMLInputElement
+  let files = element.files
   if(files) {
     for(var i = 0; i < files.length; i++){
       let formData = new FormData()
@@ -35,6 +36,7 @@ async function fileChange(event: Event) {
         } else {
           errors.value.push(response.data.error)
         }
+        element.value = ''
       } catch(e) {
         console.log("failed and catched") 
         console.log(e) 
@@ -49,7 +51,7 @@ async function fileChange(event: Event) {
 
 <template>
   <input @change="fileChange" type="file" accept="image/*" multiple :hidden="loading">
-  <div>
+  <div class=image-container>
     <div class=uploadedImage v-for="url, i in imageUrls" :key=i :style="{backgroundImage: 'url('+url+')'}"
       @click="editImage = url">
       <template v-if="url == editImage"> 
@@ -63,13 +65,20 @@ async function fileChange(event: Event) {
 </template>
 
 <style lang=less scoped>
+.image-container {
+  margin-top: 0.5rem; 
+  margin-left: -0.5rem; 
+}
+
 .uploadedImage {
   position: relative;
   display: inline-block;
   width: calc(50% - 1rem); 
   padding: 0; 
   padding-top: calc(50% - 1rem);
-  margin: 0.5rem; 
+
+  margin: 0.3rem 0.5rem; 
+
   border-radius: 0.5rem; 
   background-size: contain; 
   background-repeat: no-repeat; 

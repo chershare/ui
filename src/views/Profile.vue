@@ -7,7 +7,7 @@ const near = useNearStore()
 
 <template>
   <div class=near>
-    <h2>NEAR connection</h2>
+    <h1>Your NEAR connection</h1>
     <ul>
     <li> Account Id: {{ near.accountId }} </li>
     <li> Test message: {{ near.testMessage }} </li>

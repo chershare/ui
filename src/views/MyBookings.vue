@@ -51,11 +51,11 @@ onMounted(getBookings)
 </script>
 
 <template>
+  <h1>My Bookings</h1>
   <p v-if='near.accountId == undefined'>
     log in to near to see your bookings
   </p>
   <div v-else class="bookings">
-    <h1>My Bookings</h1>
     <BookingItem v-for='b, key in ordered' :key=key :booking=b />
   </div>
 </template>

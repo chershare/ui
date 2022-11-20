@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+import { RouterLink, RouterView, useRoute } from "vue-router";
 
 import { onMounted, ref } from 'vue'
 
@@ -9,67 +9,39 @@ import { useNearStore } from './stores/near'
 
 const near = useNearStore()
 const router = useRouter()
+const route = useRoute()
 
 onMounted(() => {
   near.startUp()
 })
 
-function goToOverview() {
-  router.push({ path: '/' })
-}
-function goToProfile() {
-  router.push({ name: 'profile' })
-}
-function goToCreateResource() {
-  router.push({ name: 'create-resource' })
-}
-function goToResourceBrowser() {
-  router.push({ name: 'resources' })
-}
-function goToMyResources() {
-  router.push({ name: 'resources', query: { owner: near.accountId }}) 
-}
-function goToMyBookings() {
-  router.push({ name: 'bookings', query: { booker: near.accountId }}) 
+function goTo(name: string) {
+  router.push({ name }) 
 }
 
-const selectedButton = ref('overview') 
-
-const navButtons = {
-  overview: {
-    onclick: goToOverview
-  }, 
-  profile: {
-    onclick: goToProfile, 
-  }, 
-  createResource: {
-    onclick: goToCreateResource
-  }, 
-  browseResources: {
-    onclick: goToResourceBrowser,
-  }, 
-  myResources: {
-    onclick: goToMyResources, 
-  }, 
-  myBookings: {
-    onclick: goToMyBookings, 
-  }
-}; 
+const routeNames = [
+  "overview",
+  "profile",
+  "create-resource",
+  "resource-browser",
+  "my-resources",
+  "my-bookings",
+]
 
 </script>
 
 <template>
-  <div class=content>
+  <div id=chershare-content>
     <RouterView />
     <div class=spacer />
   </div>
 
-  <div id=shadow />
-  <div class=menu>
-    <button v-for="button, key in navButtons" 
-      :key=key
-      @click="(selectedButton = key) && button.onclick()"
-      :class="{[key]: true, selected: key == selectedButton}" />
+  <div id=chershare-shadow />
+  <div id=chershare-menu>
+    <button v-for="routeName of routeNames" 
+      :key=routeName
+      @click="goTo(routeName)"
+      :class="{ [routeName]: true, selected: route.name == routeName}" />
   </div>
 </template>
 
@@ -129,7 +101,7 @@ a {
   color: #88f; 
 }
 
-.menu {
+#chershare-menu {
   position: fixed; 
   button {
     margin: 0; 
@@ -149,11 +121,11 @@ a {
 }
 
 @media (min-aspect-ratio: 2/3) {
-  .content {
+  #chershare-content {
     margin-left: 11vh; 
     max-width: 90vh; 
   }
-  .menu {
+  #chershare-menu {
     top: 0; 
     left: 0; 
     padding-top: 4vh; 
@@ -171,20 +143,20 @@ a {
       }
     }
   }
-  #shadow {
+  #chershare-shadow {
     display: none; 
   }
 }
   
 /* Minimum aspect ratio */
 @media (max-aspect-ratio: 2/3) {
-  .content {
+  #chershare-content {
     .spacer {
       height: calc(100vw / 4); 
     }
   }
 
-  .menu {
+  #chershare-menu {
     bottom: 0; 
     left: 0; 
     button {
@@ -212,7 +184,7 @@ a {
     }
   }
 
-  #shadow {
+  #chershare-shadow {
     position: fixed; 
     bottom: 0; 
     left: 0; 
@@ -222,24 +194,23 @@ a {
   }
 }
 
-
-.menu {
+#chershare-menu {
   .profile {
     background-image: url('@/assets/menu-icons/near.svg'); 
   }
   .overview {
     background-image: url('assets/logo.png'); 
   }
-  .createResource {
+  .create-resource {
     background-image: url('assets/menu-icons/create-resource.svg') 
   }
-  .browseResources {
+  .resource-browser {
     background-image: url('assets/menu-icons/browse-resources.svg') 
   }
-  .myResources {
+  .my-resources {
     background-image: url('assets/menu-icons/my-resources.svg') 
   }
-  .myBookings {
+  .my-bookings {
     background-image: url('assets/menu-icons/my-bookings.svg');
   }
 }

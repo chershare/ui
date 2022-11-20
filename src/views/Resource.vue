@@ -233,6 +233,7 @@ function partiallyBlocked(d: string) {
 </script>
 
 <template>
+  <h1>Resource details</h1>
   <p v-if='loadResourceErrors.length > 0'>
     <ul class=errors>
       <li v-for="error, key in loadResourceErrors" :key=key>

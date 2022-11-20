@@ -87,7 +87,7 @@ function popTag(e: Event) {
 
 <template>
   <div class="createRes">
-    <h1>Create Res</h1>
+    <h1>Rent out a resource</h1>
     <div>
       <h3>Images</h3>
       <p>Upload some photos or blueprints of the resource you are sharing.</p>
