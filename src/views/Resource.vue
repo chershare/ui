@@ -247,12 +247,12 @@ function partiallyBlocked(d: string) {
   <template v-else>
     <h3>{{baseInfo.name}}</h3>
     <div class="tags">
-      <span class=tag v-for="tag, i in baseInfo.tagList.split(',')" :key=i>
+      Tags: <span class=tag v-for="tag, i in baseInfo.tagList" :key=i>
         {{tag}}
       </span>
     </div>
     <p>{{ baseInfo.description }}</p>
-    <div class='gallery'>
+    <div class='gallery' v-if='resource.imageUrls.length > 1'>
       <div class=thumbnail  v-for="imgUrl, key in resource.imageUrls" :key=key 
         :class="{selected: key == selectedImage}"
         @click='selectedImage = key'
@@ -323,6 +323,7 @@ function partiallyBlocked(d: string) {
   }
 }
 .bigImage {
+  border-radius:0.5rem; 
   width: 100%; 
   padding-bottom: 100%; 
   background-position: center; 

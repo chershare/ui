@@ -22,8 +22,8 @@ function goTo(name: string) {
 const routeNames = [
   "overview",
   "profile",
-  "create-resource",
   "resource-browser",
+  "create-resource",
   "my-resources",
   "my-bookings",
 ]
@@ -56,7 +56,11 @@ html {
   background-color: #242424; 
   color: white; 
   font-family: sans-serif; 
-  padding: 1rem; 
+  padding: 0; 
+}
+
+body {
+  margin: 0.5rem; 
 }
 
 .logo {
@@ -71,7 +75,6 @@ html {
 
 @interactive: {
   padding: 0.5rem;
-  margin: 0.2rem; 
   border-radius: 0.5rem; 
   border: none; 
   outline: none; 
@@ -80,6 +83,8 @@ html {
 }; 
 
 input, select, textarea {
+  font-family: sans-serif; 
+  font-size: 1em; 
   @interactive(); 
   border: 2px solid #fff8; 
   &:focus {
@@ -89,16 +94,30 @@ input, select, textarea {
 
 button {
   @interactive(); 
+  padding: 1rem; 
+  border-radius: 1rem; 
   font-size: 1.0em; 
-  background-color: #fff4; 
+  background-color: #fff3; 
   cursor: pointer; 
   &:hover, &:focus {
-    background-color: #fff8; 
+    background-color: #fff7; 
+  }
+  & + & {
+    margin-left: 0.5rem;
   }
 }
 
 a {
-  color: #88f; 
+  color: #8cf; 
+  &:visited {
+    color: #eae; 
+  }
+}
+
+h1 {
+  line-height: 3rem; 
+  margin: 1rem 0 ; 
+  padding: 0; 
 }
 
 #chershare-menu {
@@ -112,7 +131,7 @@ a {
     background-position: center; 
     box-shadow: 0 1rem 1rem black; 
     transform: translate(0, 0); 
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+    transition: transform 0.2s ease-out, background-color 0.2s ease-out, box-shadow 0.2s ease-out; 
     &.selected {
       background-color: #aaa; 
       box-shadow: 0 0 0 black; 
@@ -122,13 +141,15 @@ a {
 
 @media (min-aspect-ratio: 2/3) {
   #chershare-content {
-    margin-left: 11vh; 
+    @lrmargin: 1rem; 
+    margin-left: calc(10vh + @lrmargin); 
+    margin-right: @lrmargin; 
+    margin-bottom: 3rem; 
     max-width: 90vh; 
   }
   #chershare-menu {
-    top: 0; 
+    top: 5rem; 
     left: 0; 
-    padding-top: 4vh; 
     button {
       display:block; 
       @size: 10vh; 
@@ -148,9 +169,10 @@ a {
   }
 }
   
-/* Minimum aspect ratio */
+/* mobile */
 @media (max-aspect-ratio: 2/3) {
   #chershare-content {
+    margin: 0.2rem; 
     .spacer {
       height: calc(100vw / 4); 
     }
@@ -214,5 +236,10 @@ a {
     background-image: url('assets/menu-icons/my-bookings.svg');
   }
 }
+
+.error {
+  color: #f35; 
+}
+
 
 </style>

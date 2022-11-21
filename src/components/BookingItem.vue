@@ -2,8 +2,12 @@
 import type { Booking } from '@/api-types'
 import { computed, type PropType } from 'vue'
 
-import { useResourcesStore } from '@/stores/resources'
+import config from '@/config'
 
+import { useResourcesStore } from '@/stores/resources'
+import { useNearStore } from '@/stores/near';
+
+const near = useNearStore()
 const resources = useResourcesStore() 
 
 const props = defineProps({
@@ -25,13 +29,26 @@ const humanEnd = computed(() => {
   return (new Date(props.booking.end)).toLocaleString()
 }) 
 
+function cancelBooking() {
+  const resourceContractId = props.booking.resource_name + "." + config.contract
+  const args = {
+    booking_id: props.booking.local_id
+  }
+  near.callMethod(
+    resourceContractId, 
+    "cancel_booking",  
+    args
+  )
+}
+
 </script>
 
 
 <template>
   <div class='booking'>
     <div v-if="resource !== undefined" class="title" :style="{ backgroundImage: `url(${resource.titleImage})`}">
-      <div class=cancel>
+      <div class=cancel
+        @click="cancelBooking" >
         cancel booking
       </div>
       <div class='gradient-box'>

@@ -15,11 +15,11 @@ const imageUrls = newResource.imageUrls
 let errors = ref([] as string[])
 let editImage = ref("")
 
-let loading = false; 
+let loading = ref(false); 
 
 async function fileChange(event: Event) {
   console.log("called") 
-  loading = true
+  loading.value = true
   let element = event.target as HTMLInputElement
   let files = element.files
   if(files) {
@@ -44,13 +44,13 @@ async function fileChange(event: Event) {
       }
     }
   }
-  loading = false
+  loading.value = false
 }
 
 </script>
 
 <template>
-  <input @change="fileChange" type="file" accept="image/*" multiple :hidden="loading">
+  <input @change="fileChange" type="file" accept="image/*" multiple :disabled=loading >
   <div class=image-container>
     <div class=uploadedImage v-for="url, i in imageUrls" :key=i :style="{backgroundImage: 'url('+url+')'}"
       @click="editImage = url">
@@ -65,6 +65,12 @@ async function fileChange(event: Event) {
 </template>
 
 <style lang=less scoped>
+
+input {
+  width:100%; 
+  box-sizing: border-box; 
+}
+
 .image-container {
   margin-top: 0.5rem; 
   margin-left: -0.5rem; 

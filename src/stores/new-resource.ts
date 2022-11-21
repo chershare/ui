@@ -23,6 +23,7 @@ const initalState = {
   tags: [] as string[], 
   pricing: {
     unit: 'Days' as TimeUnit, 
+    cancellationUnit: 'Days' as TimeUnit, 
     nearPerUnit: '', 
     nearPerBooking: '',
     fullRefundPeriod: 7

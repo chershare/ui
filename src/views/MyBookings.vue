@@ -5,7 +5,7 @@ import { useNearStore } from '@/stores/near'
 import { useSettingsStore } from '@/stores/settings'
 
 import type { Booking } from '@/api-types'
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import BookingItem from '@/components/BookingItem.vue'
 import { useResourcesStore } from '@/stores/resources';
@@ -52,12 +52,14 @@ onMounted(getBookings)
 
 <template>
   <h1>My Bookings</h1>
-  <p v-if='near.accountId == undefined'>
-    log in to near to see your bookings
-  </p>
-  <div v-else class="bookings">
+  <div 
+    v-if="near.accountId !== undefined"
+    class="bookings">
     <BookingItem v-for='b, key in ordered' :key=key :booking=b />
   </div>
+  <p v-else class=error>
+    Log in to Near, in order to see your bookings.  
+  </p>
 </template>
 
 <style>

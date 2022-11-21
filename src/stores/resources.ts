@@ -14,7 +14,7 @@ export interface Resource {
   priceTerm: string, 
   titleImage: string | undefined // one of the images get's returned from the database
   imageUrls: string[]
-  tagList: string
+  tagList: Set<string>
 }
 
 const initialState = {
@@ -46,7 +46,7 @@ export const useResourcesStore = defineStore("resources-store", {
 
               priceTerm: "",
 
-              tagList: row.tagList, 
+              tagList: new Set(row.tagList.split(',')), 
             }
             console.log(JSON.stringify(this.data) )
           }
