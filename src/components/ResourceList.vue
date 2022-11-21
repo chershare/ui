@@ -45,6 +45,7 @@ function getResources() {
       res.data.forEach((row: any) => {
         resources.data[row.name] = {
           name: row.name,  
+          owner: row.owner_account_id, 
           title: row.title, 
           description: row.description, 
           contactInfo: row.contactInfo, 
@@ -108,6 +109,7 @@ const resourceResults = computed(() => resourceBrowser.results.map((resName: str
 .resource {
   border-radius: 1rem; 
   box-shadow: 0 0 1.2rem #000; 
+  cursor: pointer; 
   transition: box-shadow 0.1s ease-out; 
   &:hover {
     box-shadow: 0 0 0.5rem #000; 

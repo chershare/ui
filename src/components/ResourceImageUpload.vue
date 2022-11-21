@@ -18,7 +18,6 @@ let editImage = ref("")
 let loading = ref(false); 
 
 async function fileChange(event: Event) {
-  console.log("called") 
   loading.value = true
   let element = event.target as HTMLInputElement
   let files = element.files
@@ -28,9 +27,7 @@ async function fileChange(event: Event) {
       formData.set('image', files[i])
       try {
         const url = settings.mediaServerUrl + '/' + 'resource-images'
-        console.log(url) 
         const response = await axios.post(url, formData) as any
-        console.log("response: ", response.data) 
         if(response.data.ok) {
           newResource.imageUrls.push(url + '/' + response.data.relativeUrl) 
         } else {
@@ -38,8 +35,7 @@ async function fileChange(event: Event) {
         }
         element.value = ''
       } catch(e) {
-        console.log("failed and catched") 
-        console.log(e) 
+        console.error("image upload failed", e) 
         errors.value.push(String(e))
       }
     }

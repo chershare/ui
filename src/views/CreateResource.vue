@@ -57,15 +57,13 @@ async function createResourceOnChain() {
         min_duration_ms: newResource.minDuration * timeDurations[newResource.minDurationUnit], 
       }
     } 
-    console.log("creating resource", args) 
     near.callMethod(
       config.contract, 
       "create_resource",  
       args, 
       238 + 5, // TODO: found this number by testing manually. Strange thing is: only 151 tgas are actually used but cant go below 225 here 0.o
       "3" + "0".repeat(24)
-    ).then(() => console.log("success"))
-    .catch(e => console.error("something failed", e) )
+    )
   }
 }
 
@@ -129,7 +127,7 @@ function popTag(e: Event) {
             (<input v-model=newResource.pricing.nearPerUnit type=text size=6 placeholder="NEAR"/> 
             per
             <select v-model=newResource.pricing.unit>
-              <option v-for="_ms, unit in timeDurations" :value='unit'>{{ unit.slice(0,-1) }}</option>
+              <option v-for="_ms, unit in timeDurations" :value='unit'>{{ unit.toString().slice(0,-1) }}</option>
             </select>)
           </p>
           <span class=plus>
@@ -229,16 +227,6 @@ input, select {
     width: 100%; 
     box-sizing: border-box; 
     margin: 0.5rem 0; 
-  }
-}
-
-.section {
-  border-radius: 0.5rem; 
-  background-image: linear-gradient(#fff2, #fff0); 
-  padding: 0.5rem; 
-  margin-bottom: 1rem; 
-  h3 {
-    margin-top:0; 
   }
 }
 

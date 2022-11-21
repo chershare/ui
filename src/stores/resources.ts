@@ -7,6 +7,7 @@ const settings = useSettingsStore()
 
 export interface Resource {
   name: string, 
+  owner: string, 
   title: string,  
   description: string,
   contactInfo: string, 
@@ -27,7 +28,6 @@ export const useResourcesStore = defineStore("resources-store", {
   state: () => initialState, 
   actions: {
     loadResource(resourceName: string) {
-      console.log("requesting") 
       const url = settings.mediaServerUrl + '/' + 'resources' + "/" + resourceName
       axios.get(url)
         .then((res) => {
@@ -35,9 +35,10 @@ export const useResourcesStore = defineStore("resources-store", {
             let row = res.data
             this.data[row.name] = {
               name: row.name,  
+              owner: row.owner_account_id, 
               title: row.title, 
               description: row.description, 
-              contactInfo: row.contactInfo, 
+              contactInfo: row.contact_info, 
 
               imageUrls: [row.titleImage] || [], 
               titleImage: row.titleImage, 
@@ -48,7 +49,6 @@ export const useResourcesStore = defineStore("resources-store", {
 
               tagList: new Set(row.tagList.split(',')), 
             }
-            console.log(JSON.stringify(this.data) )
           }
         })
     }

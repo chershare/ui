@@ -25,13 +25,11 @@ const ordered = computed(() => {
 }) 
 
 function getBookings() {
-  console.log("get bookings") 
   if(near.accountId) {
     const query = new URLSearchParams({
       accountId: near.accountId
     }) 
     const url = settings.mediaServerUrl + '/bookings?' + query.toString()
-    console.log("requesting bookings", url) 
     axios.get<Booking[]>(url)
       .then((res) => {
         if(typeof(res.data) == 'string') {

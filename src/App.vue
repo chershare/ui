@@ -105,6 +105,11 @@ button {
   & + & {
     margin-left: 0.5rem;
   }
+  &:disabled {
+    background-color: #fff2; 
+    color: #888; 
+    cursor: not-allowed; 
+  }
 }
 
 a {
@@ -241,5 +246,14 @@ h1 {
   color: #f35; 
 }
 
+.section {
+  border-radius: 0.5rem; 
+  background-image: linear-gradient(#fff2, #fff0); 
+  padding: 0.5rem; 
+  margin-bottom: 1rem; 
+  h3 {
+    margin-top:0; 
+  }
+}
 
 </style>

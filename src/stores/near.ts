@@ -62,7 +62,7 @@ export const useNearStore = defineStore('near', {
         const modal = setupModal(this.walletSelector, { contractId: this.contractId, description })
         modal.show()
       } else {
-        console.log("can't sign in because walletSelector is null") 
+        console.error("can't sign in because walletSelector is null") 
       }
     }, 
     signOut() {
@@ -72,7 +72,7 @@ export const useNearStore = defineStore('near', {
         this.accountId = undefined
         window.location.replace(window.location.origin + window.location.pathname)
       } else {
-        console.log("can't signed out because wallet is null") 
+        console.error("can't signed out because wallet is null") 
       }
     }, 
     getTestMessage() {

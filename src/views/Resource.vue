@@ -51,9 +51,9 @@ const baseInfo = computed(() =>
 
 const humanReadablePrice = computed(() => {
   if(newBooking.exactPrice !== undefined) {
-    return NEAR.utils.format.formatNearAmount(newBooking.exactPrice.toString())
+    return NEAR.utils.format.formatNearAmount(newBooking.exactPrice.toString()) + " NEAR"
   } else {
-    return "choose date range to see a price" 
+    return "Choose dates in order to see a price quote." 
   }
 })
 
@@ -63,7 +63,6 @@ const resourceContractAccountId = computed(() =>
 
 let loadResourceErrors = ref([] as string[]) 
 function getBaseInfo() {
-  console.log("get base info", baseInfo.value, props.resourceName) 
   if(baseInfo.value == undefined && props.resourceName) {
     resources.loadResource(props.resourceName) 
   }
@@ -71,10 +70,8 @@ function getBaseInfo() {
 
 const loadingPrice = ref(0) 
 function getQuote() {
-  console.log("ask for prices.") 
   newBooking.exactPrice = undefined
   if(newBooking.dates && props.resourceName) {
-    console.log("calling book on contract", resourceContractAccountId.value) 
     loadingPrice.value++
     near.viewMethod(
       resourceContractAccountId.value, 
@@ -84,10 +81,7 @@ function getQuote() {
         end: newBooking.dates[1] 
       }
     ).then((result: any) => {
-      console.log(loadingPrice.value) 
-      if(loadingPrice.value > 1) {
-        console.log("skipping old price quote response") 
-      } else {
+      if(loadingPrice.value <= 1) {
         newBooking.exactPrice = BigInt(result)
       }
     }).finally(() => {
@@ -97,13 +91,10 @@ function getQuote() {
 }
 
 function getImages() {
-  console.log("get images") 
   if(props.resourceName) {
     const url = settings.mediaServerUrl + '/resources/' + props.resourceName + '/images' 
-    console.log("requesting images", url) 
     axios.get(url)
       .then((res) => {
-        console.log(res) 
         if(res.data) {
           resource.imageUrls = res.data.map((row: any) => row.image_url) 
         }
@@ -126,15 +117,13 @@ function book() {
         start: newBooking.dates[0], 
         end: newBooking.dates[1], 
       } 
-      console.log("send book contract call", args) 
       near.callMethod(
         resourceContractAccountId.value, 
         "book",  
         args, 
         30, 
         newBooking.exactPrice.toString()
-      ).then(() => console.log("success"))
-      .catch(e => console.error("something failed", e) )
+      )
     }
   }
 }
@@ -143,14 +132,12 @@ let fullyBlockedDays = ref({} as {[date: number]: boolean}) // counts how many b
 let partiallyBlockedDays = ref({} as {[date: number]: boolean}) 
 
 function getBookings(from: number, until: number) {
-  console.log("get bookings") 
   if(props.resourceName) {
     const query = new URLSearchParams({
       from: from.toString(), 
       until: until.toString()
     }) 
     const url = settings.mediaServerUrl + '/resources/' + props.resourceName + '/bookings?' + query.toString()
-    console.log("requesting bookings", url) 
     axios.get<Booking[]>(url)
       .then((res) => {
         if(typeof(res.data) == 'string') {
@@ -211,25 +198,6 @@ function getBookingsForCalendar(args: {
   getBookings(from.getTime(), until.getTime())
 }
 
-function fullyBlocked(date: Date) {
-  let dayStart = date.getTime()
-  let dateEnd = new Date(date)
-  dateEnd.setDate(dateEnd.getDate() + 1)
-  let dayEnd = dateEnd.getTime()
-  for(let booking of resource.bookings) {
-    console.log("booking.start", booking.start) 
-    console.log("day start", dayStart) 
-    if(booking.start <= dayStart && booking.end >= dayEnd) {
-      return true
-    } 
-  }
-  return false
-}
-
-function partiallyBlocked(d: string) {
-  return false
-}
-
 </script>
 
 <template>
@@ -245,13 +213,15 @@ function partiallyBlocked(d: string) {
       loading resource ...
   </p>
   <template v-else>
-    <h3>{{baseInfo.name}}</h3>
-    <div class="tags">
-      Tags: <span class=tag v-for="tag, i in baseInfo.tagList" :key=i>
-        {{tag}}
-      </span>
+    <div class=section>
+      <h3>{{baseInfo.name}}</h3>
+      <div class="tags">
+        Tags: <span class=tag v-for="tag, i in baseInfo.tagList" :key=i>
+          {{tag}}
+        </span>
+      </div>
+      <p>{{ baseInfo.description }}</p>
     </div>
-    <p>{{ baseInfo.description }}</p>
     <div class='gallery' v-if='resource.imageUrls.length > 1'>
       <div class=thumbnail  v-for="imgUrl, key in resource.imageUrls" :key=key 
         :class="{selected: key == selectedImage}"
@@ -259,63 +229,62 @@ function partiallyBlocked(d: string) {
         :style="{backgroundImage: 'url('+imgUrl+')'}"/>
     </div>
     <div class='bigImage' :style="{backgroundImage: `url(${resource.imageUrls[selectedImage]})`}" />
-    <h2> booking </h2>
-    choose a date: 
-    <Datepicker 
-      v-model="newBooking.dates" 
-      model-type="timestamp"
-      range
-      dark
-      enable-seconds
-      is24
-      :start-time="{hours: 12, minutes:0, seconds: 0}"
-      @update:model-value=getQuote()
-      @update-month-year=getBookingsForCalendar
-      text-input>
-      <template #day="{ day, date }">
-        <div v-if="fullyBlockedDays[date.getTime()]" class='blockBg fully'>
-        </div>
-        <div v-else-if="partiallyBlockedDays[date.getTime()]" class='blockBg partially'>
-        </div>
-        {{ day }}
-      </template>
-    </Datepicker>
+    <div class=section>
+      <h3>Contact</h3>
+      <h4>{{ baseInfo.owner }}</h4>
+      <p>
+        {{ baseInfo.contactInfo }}
+      </p>
+    </div>
+    <div class=section>
+      <h3> booking </h3>
+      <p>
+      Choose a date: 
+      </p>
+      <Datepicker 
+        v-model="newBooking.dates" 
+        model-type="timestamp"
+        range
+        dark
+        enable-seconds
+        is24
+        :start-time="{hours: 12, minutes:0, seconds: 0}"
+        @update:model-value=getQuote()
+        @update-month-year=getBookingsForCalendar
+        text-input>
+        <template #day="{ day, date }">
+          <div v-if="fullyBlockedDays[date.getTime()]" class='blockBg fully'>
+          </div>
+          <div v-else-if="partiallyBlockedDays[date.getTime()]" class='blockBg partially'>
+          </div>
+          {{ day }}
+        </template>
+      </Datepicker>
+      <p> Price: {{ humanReadablePrice }} </p>
+      <button @click=book :disabled="newBooking.exactPrice == undefined" > 
+        Book resource
+      </button>
+    </div>
   </template>
-  <p> price: {{ humanReadablePrice }} </p>
-  <button @click=book> 
-    book
-  </button>
-  <!--h3>debug</h3>
-  bookings: 
-  <div v-for="booking in resource.bookings">
-    {{ booking }}
-  </div>
-  <p>
-    dates:  
-    {{ newBooking.dates }}
-  </p>
-  <p>
-    image urls: {{ resource.imageUrls }}
-  </p>
-  <p>
-    bookings: {{ resource.bookings }}
-  </p-->
 </template>
 
 <style lang=less scoped>
 .gallery {
+  margin: 0.5rem -0.5rem; 
   .thumbnail {
     position: relative;
     display: inline-block;
-    min-height: 9rem; 
-    min-width: 9rem; 
-    margin: 0.5rem; 
+    @size: calc(100% / 5 - 0.81rem);
+    width: @size; 
+    padding: 0; 
+    padding-top: @size;
+
+    margin: 0.2rem 0.4rem; 
     border-radius: 0.5rem; 
     background-size: contain; 
     background-repeat: no-repeat; 
     background-position: center; 
     background-color: #555;
-    padding: 0; 
     border: 0; 
     &.selected {
       outline: 3px solid white;
@@ -330,6 +299,7 @@ function partiallyBlocked(d: string) {
   background-size: contain; 
   background-repeat: no-repeat; 
   background-color: #555;
+  margin-bottom: 1rem; 
 }
 
 .tags {
@@ -363,4 +333,5 @@ function partiallyBlocked(d: string) {
     background-color: #f803; 
   }
 }
+
 </style>
