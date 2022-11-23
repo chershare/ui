@@ -74,27 +74,30 @@ function cancelBooking() {
   .title {
     position: relative; 
     max-width: 100%; 
-    padding: 10%; 
-    height: 2rem; 
     background-size: cover; 
     background-repeat: none; 
     background-position: center; 
+    text-align: right; 
     .gradient-box {
-      position: absolute; 
+      position: relative; 
       bottom: 0; 
       left: 0; 
       width: 100%; 
       background-image: linear-gradient(#0000, @resColor);
       h2 {
+        text-align: left; 
         padding: 1rem; 
+        box-sizing: border-box; 
         width: 100%; 
-        padding-top: 10%;
         margin: 0; 
       }
       pointer-events: none; 
     }
     .cancel{
-      position: absolute; 
+      display: inline-block; 
+      margin: 1rem; 
+      text-align:right; 
+      position: relative; 
       cursor: pointer; 
       box-shadow: 0 0 1.2rem #000; 
       &:hover {
@@ -102,8 +105,6 @@ function cancelBooking() {
       }
       color: #fff; 
       border-radius: 0.5rem; 
-      top: 1rem; 
-      right: 1rem; 
       padding: 1rem; 
       background-color: #b04; 
     }

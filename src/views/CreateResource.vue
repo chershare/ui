@@ -124,8 +124,8 @@ function popTag(e: Event) {
         <h3>Price calculation</h3>
         <div class=price-calc>
           <p>
-            (<input v-model=newResource.pricing.nearPerUnit type=text size=6 placeholder="NEAR"/> 
-            per
+            (<input v-model=newResource.pricing.nearPerUnit type=text size=6 /> 
+            NEAR per
             <select v-model=newResource.pricing.unit>
               <option v-for="_ms, unit in timeDurations" :value='unit'>{{ unit.toString().slice(0,-1) }}</option>
             </select>)
@@ -134,7 +134,7 @@ function popTag(e: Event) {
           plus 
           </span>
           <p>
-            (<input v-model=newResource.pricing.nearPerBooking type=text size=6 placeholder="NEAR"/> per booking )
+            (<input v-model=newResource.pricing.nearPerBooking type=text size=6 /> NEAR per booking )
           </p>
         </div>
       </div>

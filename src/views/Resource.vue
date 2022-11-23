@@ -159,7 +159,7 @@ function getBookings(from: number, until: number) {
 // okay, we have to make one thing clear here: "end" means the first ms that is not part of the booking. 
 function blockDays(start: number, end: number) {
   let startDate = new Date(start) 
-  
+
   let day = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())
   let isPartially = day.getTime() !== start
 

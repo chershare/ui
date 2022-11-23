@@ -24,8 +24,8 @@ const initalState = {
   pricing: {
     unit: 'Days' as TimeUnit, 
     cancellationUnit: 'Days' as TimeUnit, 
-    nearPerUnit: '', 
-    nearPerBooking: '',
+    nearPerUnit: '0', 
+    nearPerBooking: '0',
     fullRefundPeriod: 7
   }, 
   minDuration: 1, 
