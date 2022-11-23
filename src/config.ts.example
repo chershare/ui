@@ -2,6 +2,7 @@ import  type { NetworkId } from '@near-wallet-selector/core';
 
 // config 
 export default {
-  contract: "dev-1666200445140-19169904957827", 
-  network: "testnet" as NetworkId
+  contract: "dev-1669075798136-82472839459359", 
+  network: "testnet" as NetworkId, 
+  mediaServerDefaultHost: "https://chershare-api.aimparency.org"
 }
