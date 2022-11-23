@@ -163,16 +163,26 @@ function blockDays(start: number, end: number) {
   let day = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())
   let isPartially = day.getTime() !== start
 
-  day.setDate(day.getDate() + 1) 
+  let nextDay = new Date(day.getTime()) 
+  nextDay.setDate(nextDay.getDate() + 1) 
 
-  while(day.getTime() < end) {
+  console.log(JSON.stringify({
+    start, 
+    end, 
+    startDate, 
+    day
+  }), null, ' ')
+
+  while(nextDay.getTime() < end) {
+    console.log("day", day) 
     if(isPartially) {
       partiallyBlockedDays.value[day.getTime()] = true
       isPartially = false
     } else {
       fullyBlockedDays.value[day.getTime()] = true
     }
-    day.setDate(day.getDate() + 1) 
+    day = new Date(nextDay.getTime()) // copy
+    nextDay.setDate(nextDay.getDate() + 1)
   }
 
   isPartially ||= day.getTime() !== end
